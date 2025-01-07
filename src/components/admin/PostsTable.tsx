@@ -41,7 +41,7 @@ export const PostsTable = () => {
           status,
           created_at,
           published_at,
-          author:author_id(email)
+          author:profiles!posts_author_id_fkey(email)
         `)
         .order("created_at", { ascending: false });
 
@@ -62,11 +62,11 @@ export const PostsTable = () => {
   const getStatusColor = (status: Post["status"]) => {
     switch (status) {
       case "published":
-        return "success";
-      case "draft":
         return "secondary";
+      case "draft":
+        return "default";
       case "scheduled":
-        return "warning";
+        return "outline";
       default:
         return "default";
     }
