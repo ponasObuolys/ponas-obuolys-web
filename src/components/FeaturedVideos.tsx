@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { fetchYouTubeVideos } from "@/services/youtube";
 import { formatDistanceToNow } from "date-fns";
+import { lt } from 'date-fns/locale';
 
 export const FeaturedVideos = () => {
   const navigate = useNavigate();
@@ -57,7 +58,10 @@ export const FeaturedVideos = () => {
               <CardHeader>
                 <CardTitle className="text-lg">{video.title}</CardTitle>
                 <p className="text-sm text-gray-500">
-                  {formatDistanceToNow(new Date(video.publishedAt), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(video.publishedAt), { 
+                    addSuffix: true,
+                    locale: lt 
+                  })}
                 </p>
               </CardHeader>
               <CardContent>
