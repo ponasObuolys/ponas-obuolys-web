@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Database } from "@/integrations/supabase/types";
 
-type Role = "admin" | "user";
+type Role = Database["public"]["Enums"]["app_role"];
 
 export const useUserRole = () => {
   const session = useSession();
@@ -27,8 +27,8 @@ export const useUserRole = () => {
       if (error) {
         console.error("Error fetching user role:", error);
         setRole(null);
-      } else {
-        setRole(data.role as Role);
+      } else if (data) {
+        setRole(data.role);
       }
       setLoading(false);
     };
