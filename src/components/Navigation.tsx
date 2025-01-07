@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { Button } from "./ui/button";
+import { useUserRole } from "@/hooks/useUserRole";
+import { toast } from "./ui/use-toast";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const session = useSession();
+  const supabase = useSupabaseClient();
+  const navigate = useNavigate();
+  const { role } = useUserRole();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +24,19 @@ const Navigation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Klaida",
+        description: "Nepavyko atsijungti. Bandykite dar kartą.",
+      });
+    } else {
+      navigate("/");
+    }
+  };
 
   const navLinks = [
     { name: "Pradžia", path: "/" },
@@ -44,7 +65,7 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -57,6 +78,28 @@ const Navigation = () => {
                 {link.name}
               </Link>
             ))}
+            
+            {session ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-gray-600"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Atsijungti
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/auth")}
+                className="text-gray-600"
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Prisijungti
+              </Button>
+            )}
           </div>
 
           {/* Mobile Navigation Button */}
@@ -91,6 +134,32 @@ const Navigation = () => {
                   {link.name}
                 </Link>
               ))}
+              
+              {session ? (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    handleLogout();
+                    setIsOpen(false);
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Atsijungti
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    navigate("/auth");
+                    setIsOpen(false);
+                  }}
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Prisijungti
+                </Button>
+              )}
             </div>
           </div>
         )}
