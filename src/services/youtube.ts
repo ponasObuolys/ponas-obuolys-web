@@ -8,21 +8,26 @@ export interface YouTubeVideo {
   publishedAt: string;
 }
 
-export const fetchYouTubeVideos = async (maxResults = 6): Promise<YouTubeVideo[]> => {
-  console.log('Fetching YouTube videos...');
+export interface YouTubeResponse {
+  data: YouTubeVideo[];
+  nextPage: string | null;
+}
+
+export const fetchYouTubeVideos = async (pageParam: string | null = null): Promise<YouTubeResponse> => {
+  console.log('Fetching YouTube videos...', { pageParam });
   try {
-    const { data: { data }, error } = await supabase.functions.invoke('fetch-youtube-videos', {
-      body: { maxResults }
+    const { data: response, error } = await supabase.functions.invoke('fetch-youtube-videos', {
+      body: { pageParam }
     });
     
     if (error) {
       console.error('Error fetching videos:', error);
-      return [];
+      return { data: [], nextPage: null };
     }
 
-    return data;
+    return response;
   } catch (error) {
     console.error('Error fetching videos:', error);
-    return [];
+    return { data: [], nextPage: null };
   }
 };

@@ -11,18 +11,20 @@ serve(async (req) => {
   }
 
   try {
-    const { maxResults = 6 } = await req.json()
+    const { pageParam = null } = await req.json()
     const API_KEY = Deno.env.get('YOUTUBE_API_KEY')
     const CHANNEL_ID = Deno.env.get('YOUTUBE_CHANNEL_ID')
+    const maxResults = 12 // Increased from 6 to 12 for better UX
     
-    console.log('Fetching videos for channel:', CHANNEL_ID)
+    console.log('Fetching videos for channel:', CHANNEL_ID, 'pageToken:', pageParam)
     
     if (!CHANNEL_ID) {
       throw new Error('YOUTUBE_CHANNEL_ID environment variable is not set')
     }
 
+    const pageToken = pageParam ? `&pageToken=${pageParam}` : ''
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&key=${API_KEY}`,
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&key=${API_KEY}${pageToken}`,
       { method: 'GET' }
     )
 
@@ -44,7 +46,10 @@ serve(async (req) => {
     }))
 
     return new Response(
-      JSON.stringify({ data: videos }),
+      JSON.stringify({ 
+        data: videos,
+        nextPage: data.nextPageToken || null,
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
