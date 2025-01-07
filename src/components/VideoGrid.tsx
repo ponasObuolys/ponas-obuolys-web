@@ -2,6 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchYouTubeVideos, type YouTubeVideo } from "@/services/youtube";
 import { formatDistanceToNow } from "date-fns";
+import { lt } from 'date-fns/locale';
 import { useEffect, useRef } from "react";
 
 export const VideoGrid = () => {
@@ -63,7 +64,7 @@ export const VideoGrid = () => {
   if (error) {
     return (
       <div className="text-center p-6">
-        <p className="text-red-500">Failed to load videos. Please try again later.</p>
+        <p className="text-red-500">Nepavyko įkelti video. Pabandykite dar kartą.</p>
       </div>
     );
   }
@@ -91,7 +92,10 @@ export const VideoGrid = () => {
               <CardHeader>
                 <CardTitle className="text-lg">{video.title}</CardTitle>
                 <p className="text-sm text-gray-500">
-                  {formatDistanceToNow(new Date(video.publishedAt), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(video.publishedAt), { 
+                    addSuffix: true,
+                    locale: lt 
+                  })}
                 </p>
               </CardHeader>
               <CardContent>
@@ -107,7 +111,7 @@ export const VideoGrid = () => {
         className="h-10 flex items-center justify-center"
       >
         {isFetchingNextPage && (
-          <div className="animate-pulse text-gray-500">Loading more videos...</div>
+          <div className="animate-pulse text-gray-500">Užkraunami likę video...</div>
         )}
       </div>
     </div>
