@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Edit, Eye, Trash } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -10,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Post {
   id: string;
@@ -17,13 +21,15 @@ interface Post {
   status: "draft" | "published" | "scheduled";
   created_at: string;
   published_at: string | null;
+  views_count: number;
   author: {
     email: string;
   };
 }
 
 export const PostsTable = () => {
-  const { data: posts, isLoading } = useQuery({
+  const navigate = useNavigate();
+  const { data: posts, isLoading, refetch } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -34,6 +40,7 @@ export const PostsTable = () => {
           status,
           created_at,
           published_at,
+          views_count,
           author:profiles!posts_author_id_fkey (
             email
           )
@@ -47,6 +54,16 @@ export const PostsTable = () => {
       return data as Post[];
     },
   });
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("posts").delete().eq("id", id);
+    if (error) {
+      toast.error("Failed to delete post");
+      return;
+    }
+    toast.success("Post deleted successfully");
+    refetch();
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -76,8 +93,10 @@ export const PostsTable = () => {
           <TableHead>Title</TableHead>
           <TableHead>Author</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Views</TableHead>
           <TableHead>Created</TableHead>
           <TableHead>Published</TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -90,6 +109,7 @@ export const PostsTable = () => {
                 {post.status}
               </Badge>
             </TableCell>
+            <TableCell>{post.views_count}</TableCell>
             <TableCell>
               {format(new Date(post.created_at), "MMM d, yyyy")}
             </TableCell>
@@ -97,6 +117,29 @@ export const PostsTable = () => {
               {post.published_at
                 ? format(new Date(post.published_at), "MMM d, yyyy")
                 : "-"}
+            </TableCell>
+            <TableCell className="space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigate(`/admin/posts/${post.id}`)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigate(`/blog/${post.id}`)}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => handleDelete(post.id)}
+              >
+                <Trash className="h-4 w-4" />
+              </Button>
             </TableCell>
           </TableRow>
         ))}

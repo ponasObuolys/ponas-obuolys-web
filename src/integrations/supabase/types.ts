@@ -183,6 +183,7 @@ export type Database = {
           excerpt: string | null
           featured_image: string | null
           id: string
+          is_featured: boolean | null
           meta_description: string | null
           meta_title: string | null
           published_at: string | null
@@ -192,6 +193,7 @@ export type Database = {
           title: string
           updated_at: string
           version: number
+          views_count: number | null
         }
         Insert: {
           author_id: string
@@ -200,6 +202,7 @@ export type Database = {
           excerpt?: string | null
           featured_image?: string | null
           id?: string
+          is_featured?: boolean | null
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
@@ -209,6 +212,7 @@ export type Database = {
           title: string
           updated_at?: string
           version?: number
+          views_count?: number | null
         }
         Update: {
           author_id?: string
@@ -217,6 +221,7 @@ export type Database = {
           excerpt?: string | null
           featured_image?: string | null
           id?: string
+          is_featured?: boolean | null
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
@@ -226,6 +231,7 @@ export type Database = {
           title?: string
           updated_at?: string
           version?: number
+          views_count?: number | null
         }
         Relationships: []
       }
@@ -297,7 +303,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_post_views: {
+        Args: {
+          post_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
