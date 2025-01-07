@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cached_youtube_videos: {
+        Row: {
+          cached_at: string
+          description: string | null
+          id: string
+          published_at: string
+          thumbnail: string
+          title: string
+          video_id: string
+        }
+        Insert: {
+          cached_at?: string
+          description?: string | null
+          id?: string
+          published_at: string
+          thumbnail: string
+          title: string
+          video_id: string
+        }
+        Update: {
+          cached_at?: string
+          description?: string | null
+          id?: string
+          published_at?: string
+          thumbnail?: string
+          title?: string
+          video_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
