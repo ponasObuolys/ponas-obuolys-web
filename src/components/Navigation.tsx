@@ -44,6 +44,7 @@ const Navigation = () => {
     { name: "Blogas", path: "/blog" },
     { name: "Kontaktai", path: "/contact" },
     { name: "Apie", path: "/about" },
+    ...(role === "admin" ? [{ name: "Admin", path: "/admin" }] : []),
   ];
 
   return (

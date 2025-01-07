@@ -7,6 +7,8 @@ import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Videos from "./pages/Videos";
+import Admin from "./pages/Admin";
+import PostEditor from "./pages/PostEditor";
 import { supabase } from "./integrations/supabase/client";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,9 @@ const App = () => (
             <Route path="/blog" element={<div>Blog Page Coming Soon</div>} />
             <Route path="/contact" element={<div>Contact Page Coming Soon</div>} />
             <Route path="/about" element={<div>About Page Coming Soon</div>} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/posts/new" element={<PostEditor />} />
+            <Route path="/admin/posts/:id" element={<PostEditor />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
