@@ -4,7 +4,6 @@ import { fetchYouTubeVideos, type YouTubeVideo } from "@/services/youtube";
 import { formatDistanceToNow } from "date-fns";
 import { lt } from 'date-fns/locale';
 import { useEffect, useRef } from "react";
-import { ThumbsUp, MessageCircle } from "lucide-react";
 
 export const VideoGrid = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -46,18 +45,6 @@ export const VideoGrid = () => {
       }
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  const formatNumber = (num: number | undefined): string => {
-    if (num === undefined) return '0';
-    
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  };
 
   if (isLoading) {
     return (
@@ -104,26 +91,12 @@ export const VideoGrid = () => {
               />
               <CardHeader>
                 <CardTitle className="text-lg">{video.title}</CardTitle>
-                <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4 sm:items-center text-sm text-gray-500">
-                  <p>{formatDistanceToNow(new Date(video.publishedAt), { 
+                <p className="text-sm text-gray-500">
+                  {formatDistanceToNow(new Date(video.publishedAt), { 
                     addSuffix: true,
                     locale: lt 
-                  })}</p>
-                  <div className="flex items-center space-x-4">
-                    {video.likeCount !== undefined && (
-                      <span className="flex items-center space-x-1">
-                        <ThumbsUp className="w-4 h-4" />
-                        <span>{formatNumber(video.likeCount)}</span>
-                      </span>
-                    )}
-                    {video.commentCount !== undefined && (
-                      <span className="flex items-center space-x-1">
-                        <MessageCircle className="w-4 h-4" />
-                        <span>{formatNumber(video.commentCount)}</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
+                  })}
+                </p>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600 line-clamp-2">{video.description}</p>
