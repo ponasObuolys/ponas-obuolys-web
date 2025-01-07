@@ -32,6 +32,9 @@ export const PostsTable = () => {
   const { data: posts, isLoading, refetch } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error("Not authenticated");
+
       const { data, error } = await supabase
         .from("posts")
         .select(`
@@ -41,13 +44,14 @@ export const PostsTable = () => {
           created_at,
           published_at,
           views_count,
-          author:profiles!posts_author_id_fkey (
+          author:author_id (
             email
           )
         `)
         .order("created_at", { ascending: false });
 
       if (error) {
+        console.error("Error fetching posts:", error);
         throw error;
       }
 
