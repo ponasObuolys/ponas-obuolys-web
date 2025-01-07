@@ -4,6 +4,7 @@ import { fetchYouTubeVideos, type YouTubeVideo } from "@/services/youtube";
 import { formatDistanceToNow } from "date-fns";
 import { lt } from 'date-fns/locale';
 import { useEffect, useRef } from "react";
+import { ThumbsUp, MessageCircle } from "lucide-react";
 
 export const VideoGrid = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -45,6 +46,16 @@ export const VideoGrid = () => {
       }
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  };
 
   if (isLoading) {
     return (
@@ -91,12 +102,22 @@ export const VideoGrid = () => {
               />
               <CardHeader>
                 <CardTitle className="text-lg">{video.title}</CardTitle>
-                <p className="text-sm text-gray-500">
-                  {formatDistanceToNow(new Date(video.publishedAt), { 
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <p>{formatDistanceToNow(new Date(video.publishedAt), { 
                     addSuffix: true,
                     locale: lt 
-                  })}
-                </p>
+                  })}</p>
+                  <div className="flex items-center space-x-4">
+                    <span className="flex items-center space-x-1">
+                      <ThumbsUp className="w-4 h-4" />
+                      <span>{formatNumber(video.likeCount)}</span>
+                    </span>
+                    <span className="flex items-center space-x-1">
+                      <MessageCircle className="w-4 h-4" />
+                      <span>{formatNumber(video.commentCount)}</span>
+                    </span>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600 line-clamp-2">{video.description}</p>
