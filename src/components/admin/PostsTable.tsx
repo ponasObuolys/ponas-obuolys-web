@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -52,7 +53,7 @@ export const PostsTable = () => {
       }
 
       if (statusFilter !== "all") {
-        query = query.eq("status", statusFilter);
+        query = query.eq("status", statusFilter as Post["status"]);
       }
 
       const { data, error, count } = await query.select("*", { count: "exact" });
@@ -63,8 +64,18 @@ export const PostsTable = () => {
       }
 
       console.log("Fetched posts:", data);
+      
+      // Transform the data to match the Post interface
+      const transformedPosts = data.map((post: any) => ({
+        ...post,
+        author: {
+          id: post.author?.id || "",
+          username: post.author?.username || "Unknown",
+        },
+      })) as Post[];
+
       return {
-        posts: data as Post[],
+        posts: transformedPosts,
         total: count || 0,
       };
     },
