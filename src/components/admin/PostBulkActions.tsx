@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { lt } from "@/i18n/lt";
 import { BulkActionProps } from "./types";
 
 export const PostBulkActions = ({ selectedPosts, onBulkAction }: BulkActionProps) => {
@@ -13,12 +14,12 @@ export const PostBulkActions = ({ selectedPosts, onBulkAction }: BulkActionProps
   return (
     <Select onValueChange={onBulkAction} defaultValue="">
       <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Bulk actions" />
+        <SelectValue placeholder={lt.admin.bulkActions} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="publish">Publish Selected</SelectItem>
-        <SelectItem value="draft">Move to Draft</SelectItem>
-        <SelectItem value="delete">Delete Selected</SelectItem>
+        <SelectItem value="publish">{lt.admin.publishSelected}</SelectItem>
+        <SelectItem value="draft">{lt.admin.moveToTrash}</SelectItem>
+        <SelectItem value="delete">{lt.admin.deleteSelected}</SelectItem>
       </SelectContent>
     </Select>
   );

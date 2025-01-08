@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { lt } from "@/i18n/lt";
 import type { PostTableProps, PostStatus } from "./types";
 
 export const PostsTableRow = ({
@@ -34,6 +35,19 @@ export const PostsTableRow = ({
     }
   };
 
+  const getStatusText = (status: PostStatus) => {
+    switch (status) {
+      case "published":
+        return lt.admin.publishedStatus;
+      case "draft":
+        return lt.admin.draftStatus;
+      case "scheduled":
+        return lt.admin.scheduledStatus;
+      default:
+        return status;
+    }
+  };
+
   const handleStatusChange = (newStatus: PostStatus) => {
     onStatusChange(post.id, newStatus);
   };
@@ -52,13 +66,15 @@ export const PostsTableRow = ({
         <Select value={post.status} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[120px]">
             <SelectValue>
-              <Badge variant={getStatusColor(post.status)}>{post.status}</Badge>
+              <Badge variant={getStatusColor(post.status)}>
+                {getStatusText(post.status)}
+              </Badge>
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="published">Published</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="scheduled">Scheduled</SelectItem>
+            <SelectItem value="published">{lt.admin.publishedStatus}</SelectItem>
+            <SelectItem value="draft">{lt.admin.draftStatus}</SelectItem>
+            <SelectItem value="scheduled">{lt.admin.scheduledStatus}</SelectItem>
           </SelectContent>
         </Select>
       </TableCell>

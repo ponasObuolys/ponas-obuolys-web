@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { StatsCard, usePostStats } from "@/components/admin/StatsCard";
+import { lt } from "@/i18n/lt";
 
 const Admin = () => {
   const session = useSession();
@@ -22,46 +23,52 @@ const Admin = () => {
     }
   }, [session, navigate, role, loading]);
 
+  const handleNewPost = () => {
+    navigate("/admin/posts/new");
+  };
+
   if (loading || !session || role !== "admin") {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50/50">
       <Navigation />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Blog Management</h1>
-          <Button onClick={() => navigate("/admin/posts/new")}>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">{lt.admin.title}</h1>
+          <Button onClick={handleNewPost} className="shadow-sm">
             <PlusCircle className="mr-2 h-4 w-4" />
-            New Post
+            {lt.admin.newPost}
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatsCard
-            title="Total Posts"
+            title={lt.admin.totalPosts}
             value={stats?.totalPosts || 0}
-            description="All blog posts"
+            description="Visi blog'o įrašai"
           />
           <StatsCard
-            title="Published"
+            title={lt.admin.published}
             value={stats?.publishedPosts || 0}
-            description="Live posts"
+            description="Aktyvūs įrašai"
           />
           <StatsCard
-            title="Drafts"
+            title={lt.admin.drafts}
             value={stats?.draftPosts || 0}
-            description="Unpublished posts"
+            description="Nepaskelbti įrašai"
           />
           <StatsCard
-            title="Total Views"
+            title={lt.admin.totalViews}
             value={stats?.totalViews || 0}
-            description="All time views"
+            description="Bendros peržiūros"
           />
         </div>
 
-        <PostsTable />
+        <div className="bg-white rounded-lg shadow-sm border">
+          <PostsTable />
+        </div>
       </div>
     </div>
   );
