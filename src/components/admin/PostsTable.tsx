@@ -44,8 +44,9 @@ export const PostsTable = () => {
           created_at,
           published_at,
           views_count,
-          author:author_id (
-            email
+          author:profiles!posts_author_id_fkey (
+            id,
+            email:username
           )
         `)
         .order("created_at", { ascending: false });

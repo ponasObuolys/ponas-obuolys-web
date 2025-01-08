@@ -16,8 +16,19 @@ const Auth = () => {
         if (event === "SIGNED_IN") {
           navigate("/");
         }
-        if (event === "SIGNED_OUT") {
+        if (event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
           setErrorMessage("");
+        }
+        if (event === "USER_UPDATED") {
+          const { error } = await supabase.auth.getSession();
+          if (error) {
+            console.error("Auth error:", error);
+            setErrorMessage(getErrorMessage(error));
+            if (error.message.includes("refresh_token_not_found")) {
+              await supabase.auth.signOut();
+              navigate("/auth");
+            }
+          }
         }
       }
     );
@@ -31,6 +42,8 @@ const Auth = () => {
         return "Neteisingi prisijungimo duomenys. Patikrinkite el. paštą ir slaptažodį.";
       case "Email not confirmed":
         return "Prašome patvirtinti savo el. pašto adresą prieš prisijungiant.";
+      case "Invalid Refresh Token: Refresh Token Not Found":
+        return "Jūsų sesija baigėsi. Prašome prisijungti iš naujo.";
       default:
         return error.message;
     }
