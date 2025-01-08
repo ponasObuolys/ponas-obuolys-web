@@ -4,34 +4,40 @@ import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/contexts/AuthContext";
 import type { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === "SIGNED_IN") {
-          navigate("/");
-        }
-        if (event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
-          setErrorMessage("");
-        }
-        if (event === "USER_UPDATED") {
-          const { error } = await supabase.auth.getSession();
-          if (error) {
-            console.error("Auth error:", error);
-            setErrorMessage(getErrorMessage(error));
-            if (error.message.includes("refresh_token_not_found")) {
-              await supabase.auth.signOut();
-              navigate("/auth");
-            }
+    if (session) {
+      navigate("/admin");
+    }
+  }, [session, navigate]);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN") {
+        navigate("/admin");
+      }
+      if (event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
+        setErrorMessage("");
+      }
+      if (event === "USER_UPDATED") {
+        const { error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Auth error:", error);
+          setErrorMessage(getErrorMessage(error));
+          if (error.message.includes("refresh_token_not_found")) {
+            await supabase.auth.signOut();
+            navigate("/auth");
           }
         }
       }
-    );
+    });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
