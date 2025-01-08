@@ -1,18 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ImagePlus, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 interface MediaUploaderProps {
-  onUpload: (url: string) => void;
+  onUpload: (file: File) => void;
   disabled?: boolean;
 }
 
 const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
-  const [uploading, setUploading] = React.useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
 
@@ -21,33 +20,12 @@ const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
       }
 
       const file = event.target.files[0];
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("blog-media")
-        .upload(fileName, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("blog-media")
-        .getPublicUrl(fileName);
-
-      onUpload(publicUrl);
-      toast({
-        title: "Success",
-        description: "Image uploaded successfully",
-      });
+      onUpload(file);
+      
+      toast.success("Image selected successfully");
     } catch (error) {
-      console.error("Error uploading image:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Error uploading image",
-      });
+      console.error("Error selecting image:", error);
+      toast.error("Error selecting image");
     } finally {
       setUploading(false);
     }
@@ -71,7 +49,7 @@ const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
         type="file"
         id="imageInput"
         accept="image/*"
-        onChange={uploadImage}
+        onChange={handleFileChange}
         onClick={(e) => e.stopPropagation()}
         className="hidden"
         disabled={disabled}

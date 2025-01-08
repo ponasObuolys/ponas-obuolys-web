@@ -14,6 +14,7 @@ const PostEditor = () => {
   const navigate = useNavigate();
   const { role, loading: roleLoading } = useUserRole();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [defaultValues, setDefaultValues] = useState<PostFormData>({
     title: "",
     content: "",
@@ -42,6 +43,7 @@ const PostEditor = () => {
           .single();
 
         if (error) {
+          setError("Failed to fetch post. Please try again.");
           toast.error("Failed to fetch post. Please try again.");
           return;
         }
@@ -56,32 +58,55 @@ const PostEditor = () => {
     fetchPost();
   }, [id]);
 
-  const onSubmit = async (data: PostFormData) => {
-    if (!session?.user?.id) return;
+  const handleSave = async (data: PostFormData, newImage: File | null) => {
+    try {
+      let imageUrl = data.featuredImage;
+      
+      // Handle image upload if there's a new image
+      if (newImage) {
+        const fileExt = newImage.name.split('.').pop();
+        const filePath = `${crypto.randomUUID()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('blog-media')
+          .upload(filePath, newImage);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('blog-media')
+          .getPublicUrl(filePath);
+          
+        imageUrl = publicUrl;
+      }
 
-    const slug = data.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+      const slug = data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
 
-    const postData = {
-      ...mapFormToDatabase(data),
-      slug,
-      author_id: session.user.id,
-      published_at: data.status === "published" ? new Date().toISOString() : null,
-    };
+      const postData = {
+        ...mapFormToDatabase(data),
+        slug,
+        featured_image: imageUrl,
+        author_id: session?.user?.id,
+        published_at: data.status === "published" ? new Date().toISOString() : null,
+      };
 
-    const { error } = id
-      ? await supabase.from("posts").update(postData).eq("id", id)
-      : await supabase.from("posts").insert(postData);
+      const { error: saveError } = id
+        ? await supabase.from("posts").update(postData).eq("id", id)
+        : await supabase.from("posts").insert(postData);
 
-    if (error) {
-      toast.error("Failed to save post. Please try again.");
-      return;
+      if (saveError) throw saveError;
+
+      toast.success("Post saved successfully.");
+      navigate("/admin");
+    } catch (err) {
+      console.error('Save failed:', err);
+      setError('Failed to save post. Please try again.');
+      toast.error('Failed to save post. Please try again.');
+      throw err;
     }
-
-    toast.success("Post saved successfully.");
-    navigate("/admin");
   };
 
   if (loading || !session || role !== "admin") {
@@ -95,9 +120,14 @@ const PostEditor = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
           {id ? "Edit Post" : "New Post"}
         </h1>
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
         <PostForm
           defaultValues={defaultValues}
-          onSubmit={onSubmit}
+          onSubmit={handleSave}
           onCancel={() => navigate("/admin")}
         />
       </div>

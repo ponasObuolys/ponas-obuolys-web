@@ -4,25 +4,19 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PostFormFields } from "@/components/admin/PostFormFields";
 import { PostFormActions } from "@/components/admin/PostFormActions";
+import type { PostFormData } from "@/types/post";
 
 interface PostFormProps {
-  defaultValues?: {
-    title: string;
-    content: string;
-    excerpt: string;
-    status: string;
-    metaTitle: string;
-    metaDescription: string;
-    featuredImage: string;
-  };
-  onSubmit: (data: any) => Promise<void>;
+  defaultValues?: PostFormData;
+  onSubmit: (data: PostFormData, newImage: File | null) => Promise<void>;
   onCancel: () => void;
 }
 
 const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [formData, setFormData] = useState<PostFormData>({
     title: defaultValues?.title || "",
     content: defaultValues?.content || "",
     excerpt: defaultValues?.excerpt || "",
@@ -37,12 +31,10 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
     
     try {
       setIsSubmitting(true);
-      await onSubmit(formData);
-      toast.success("Įrašas sėkmingai išsaugotas");
-      navigate("/admin");
+      await onSubmit(formData, newImage);
     } catch (error) {
       console.error("Failed to save post:", error);
-      toast.error("Nepavyko išsaugoti įrašo");
+      toast.error("Failed to save post. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -50,6 +42,10 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
 
   const handleFieldChange = (field: string) => (value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageChange = (file: File) => {
+    setNewImage(file);
   };
 
   return (
@@ -64,6 +60,7 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
         onMetaTitleChange={handleFieldChange("metaTitle")}
         onMetaDescriptionChange={handleFieldChange("metaDescription")}
         onFeaturedImageChange={handleFieldChange("featuredImage")}
+        onImageUpload={handleImageChange}
       />
       <PostFormActions isSubmitting={isSubmitting} onCancel={onCancel} />
     </form>
