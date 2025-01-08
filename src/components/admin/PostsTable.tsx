@@ -24,7 +24,7 @@ interface Post {
   views_count: number;
   author: {
     id: string;
-    email: string;
+    username: string;  // Changed from email to username to match profiles table
   };
 }
 
@@ -47,7 +47,7 @@ export const PostsTable = () => {
           views_count,
           author:profiles!posts_author_id_fkey (
             id,
-            email:username
+            username
           )
         `)
         .order("created_at", { ascending: false });
@@ -109,7 +109,7 @@ export const PostsTable = () => {
         {posts.map((post) => (
           <TableRow key={post.id}>
             <TableCell>{post.title}</TableCell>
-            <TableCell>{post.author.email}</TableCell>
+            <TableCell>{post.author.username}</TableCell>
             <TableCell>
               <Badge variant={getStatusColor(post.status)}>
                 {post.status}
