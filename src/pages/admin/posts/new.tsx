@@ -3,7 +3,7 @@ import { useSession } from "@supabase/auth-helpers-react";
 import AdminLayout from "@/components/admin/Layout";
 import PostForm from "@/components/editor/PostForm";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export default function NewPost() {
   const navigate = useNavigate();
@@ -13,14 +13,17 @@ export default function NewPost() {
     title: "",
     content: "",
     excerpt: "",
-    status: "draft" as const,
-    meta_title: "",
-    meta_description: "",
-    featured_image: "",
+    status: "draft",
+    metaTitle: "",
+    metaDescription: "",
+    featuredImage: "",
   };
 
   const handleSubmit = async (data: any) => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id) {
+      toast.error("Turite būti prisijungęs");
+      return;
+    }
 
     try {
       const slug = data.title
@@ -41,24 +44,13 @@ export default function NewPost() {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Post created successfully",
-      });
-
+      toast.success("Įrašas sėkmingai sukurtas");
       navigate("/admin");
     } catch (error) {
       console.error("Error creating post:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to create post. Please try again.",
-      });
+      toast.error("Nepavyko sukurti įrašo");
+      throw error;
     }
-  };
-
-  const handleCancel = () => {
-    navigate("/admin");
   };
 
   return (
@@ -68,11 +60,11 @@ export default function NewPost() {
           <h1 className="text-2xl font-bold">Naujas įrašas</h1>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-6 rounded-lg shadow">
           <PostForm
             defaultValues={defaultValues}
             onSubmit={handleSubmit}
-            onCancel={handleCancel}
+            onCancel={() => navigate("/admin")}
           />
         </div>
       </div>
