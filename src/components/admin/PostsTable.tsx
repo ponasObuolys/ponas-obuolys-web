@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,7 +14,8 @@ import { PostsTableRow } from "./PostsTableRow";
 import { PostFilters } from "./PostFilters";
 import { PostBulkActions } from "./PostBulkActions";
 import { PostPagination } from "./PostPagination";
-import { Post, PostFilters as PostFiltersType } from "./types";
+import { usePostsData } from "./usePostsData";
+import type { Post, PostFilters as PostFiltersType } from "./types";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -28,64 +28,7 @@ export const PostsTable = () => {
     page: 1,
   });
 
-  const { data: postsData, isLoading, refetch } = useQuery({
-    queryKey: ["posts", filters],
-    queryFn: async () => {
-      console.log("Fetching posts with filters:", filters);
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error("Not authenticated");
-
-      let query = supabase
-        .from("posts")
-        .select(
-          `
-          id,
-          title,
-          status,
-          created_at,
-          published_at,
-          views_count,
-          author:profiles(id, username)
-        `,
-          { count: 'exact' }
-        )
-        .order("created_at", { ascending: false })
-        .range(
-          (filters.page - 1) * ITEMS_PER_PAGE,
-          filters.page * ITEMS_PER_PAGE - 1
-        );
-
-      if (filters.search) {
-        query = query.ilike("title", `%${filters.search}%`);
-      }
-
-      if (filters.status !== "all") {
-        query = query.eq("status", filters.status as Post["status"]);
-      }
-
-      const { data, error, count } = await query;
-
-      if (error) {
-        console.error("Error fetching posts:", error);
-        throw error;
-      }
-
-      console.log("Fetched posts:", data);
-      
-      const transformedPosts = data.map((post: any) => ({
-        ...post,
-        author: {
-          id: post.author?.id || "",
-          username: post.author?.username || "Unknown",
-        },
-      })) as Post[];
-
-      return {
-        posts: transformedPosts,
-        total: count || 0,
-      };
-    },
-  });
+  const { data: postsData, isLoading, refetch } = usePostsData(filters);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("posts").delete().eq("id", id);

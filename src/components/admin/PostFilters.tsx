@@ -7,12 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { PostFilters as PostFiltersType } from "./types";
-
-interface PostFiltersProps {
-  filters: PostFiltersType;
-  onFiltersChange: (filters: Partial<PostFiltersType>) => void;
-}
+import type { PostFiltersProps } from "./types";
 
 export const PostFilters = ({ filters, onFiltersChange }: PostFiltersProps) => {
   return (

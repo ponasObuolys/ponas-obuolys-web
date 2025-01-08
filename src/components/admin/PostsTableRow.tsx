@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Post } from "./types";
 import {
   Select,
   SelectContent,
@@ -12,25 +11,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface PostsTableRowProps {
-  post: Post;
-  onDelete: (id: string) => void;
-  onNavigate: (path: string) => void;
-  selected: boolean;
-  onSelect: (id: string, checked: boolean) => void;
-  onStatusChange: (newStatus: Post["status"]) => void;
-}
+import type { PostTableProps } from "./types";
 
 export const PostsTableRow = ({
   post,
-  onDelete,
-  onNavigate,
   selected,
   onSelect,
   onStatusChange,
-}: PostsTableRowProps) => {
-  const getStatusColor = (status: Post["status"]) => {
+  onDelete,
+  onNavigate,
+}: PostTableProps) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
         return "default";
@@ -54,7 +45,7 @@ export const PostsTableRow = ({
       <TableCell>{post.title}</TableCell>
       <TableCell>{post.author?.username || "Unknown"}</TableCell>
       <TableCell>
-        <Select value={post.status} onValueChange={onStatusChange}>
+        <Select value={post.status} onValueChange={(value) => onStatusChange(post.id, value)}>
           <SelectTrigger className="w-[120px]">
             <SelectValue>
               <Badge variant={getStatusColor(post.status)}>{post.status}</Badge>
