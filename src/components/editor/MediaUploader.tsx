@@ -12,6 +12,9 @@ const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
     try {
       setUploading(true);
 
@@ -20,7 +23,10 @@ const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
       }
 
       const file = event.target.files[0];
-      onUpload(file);
+      await onUpload(file);
+      
+      // Reset the input value to allow selecting the same file again
+      event.target.value = '';
       
       toast.success("Image selected successfully");
     } catch (error) {
@@ -31,12 +37,19 @@ const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
     }
   };
 
+  const handleButtonClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    document.getElementById("imageInput")?.click();
+  };
+
   return (
     <div>
       <Button
+        type="button"
         variant="outline"
         disabled={disabled || uploading}
-        onClick={() => document.getElementById("imageInput")?.click()}
+        onClick={handleButtonClick}
       >
         {uploading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -50,7 +63,6 @@ const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
         id="imageInput"
         accept="image/*"
         onChange={handleFileChange}
-        onClick={(e) => e.stopPropagation()}
         className="hidden"
         disabled={disabled}
       />

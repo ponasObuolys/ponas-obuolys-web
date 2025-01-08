@@ -46,6 +46,9 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
 
   const handleImageUpload = (file: File) => {
     setNewImage(file);
+    // Create a temporary URL for preview
+    const previewUrl = URL.createObjectURL(file);
+    setFormData(prev => ({ ...prev, featuredImage: previewUrl }));
   };
 
   return (
