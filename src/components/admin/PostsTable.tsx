@@ -1,42 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Edit, Eye, Search, Trash } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-interface Post {
-  id: string;
-  title: string;
-  status: "draft" | "published" | "scheduled";
-  created_at: string;
-  published_at: string | null;
-  views_count: number;
-  author: {
-    id: string;
-    username: string | null;
-  };
-}
+import { PostsTableHeader } from "./PostsTableHeader";
+import { PostsTableRow } from "./PostsTableRow";
+import { Post } from "./types";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -45,6 +22,7 @@ export const PostsTable = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
+  const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
 
   const { data: postsData, isLoading, refetch } = useQuery({
     queryKey: ["posts", search, statusFilter, page],
@@ -55,7 +33,8 @@ export const PostsTable = () => {
 
       let query = supabase
         .from("posts")
-        .select(`
+        .select(
+          `
           id,
           title,
           status,
@@ -63,7 +42,8 @@ export const PostsTable = () => {
           published_at,
           views_count,
           author:profiles(id, username)
-        `)
+        `
+        )
         .order("created_at", { ascending: false })
         .range((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE - 1);
 
@@ -100,17 +80,30 @@ export const PostsTable = () => {
     refetch();
   };
 
-  const getStatusColor = (status: Post["status"]) => {
-    switch (status) {
-      case "published":
-        return "default";
+  const handleBulkAction = async (action: string) => {
+    if (!selectedPosts.length) return;
+
+    switch (action) {
+      case "publish":
+        await supabase
+          .from("posts")
+          .update({ status: "published", published_at: new Date().toISOString() })
+          .in("id", selectedPosts);
+        break;
       case "draft":
-        return "secondary";
-      case "scheduled":
-        return "outline";
-      default:
-        return "secondary";
+        await supabase
+          .from("posts")
+          .update({ status: "draft", published_at: null })
+          .in("id", selectedPosts);
+        break;
+      case "delete":
+        await supabase.from("posts").delete().in("id", selectedPosts);
+        break;
     }
+
+    setSelectedPosts([]);
+    refetch();
+    toast.success(`Bulk action "${action}" completed successfully`);
   };
 
   const totalPages = postsData ? Math.ceil(postsData.total / ITEMS_PER_PAGE) : 0;
@@ -129,35 +122,19 @@ export const PostsTable = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search posts..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-8"
-          />
-        </div>
-        <Select
-          value={statusFilter}
-          onValueChange={setStatusFilter}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="published">Published</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="scheduled">Scheduled</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <PostsTableHeader
+        search={search}
+        onSearchChange={setSearch}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        selectedPosts={selectedPosts}
+        onBulkAction={handleBulkAction}
+      />
 
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[50px]">Select</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Author</TableHead>
             <TableHead>Status</TableHead>
@@ -169,47 +146,20 @@ export const PostsTable = () => {
         </TableHeader>
         <TableBody>
           {postsData?.posts.map((post) => (
-            <TableRow key={post.id}>
-              <TableCell>{post.title}</TableCell>
-              <TableCell>{post.author?.username || "Unknown"}</TableCell>
-              <TableCell>
-                <Badge variant={getStatusColor(post.status)}>
-                  {post.status}
-                </Badge>
-              </TableCell>
-              <TableCell>{post.views_count}</TableCell>
-              <TableCell>
-                {format(new Date(post.created_at), "MMM d, yyyy")}
-              </TableCell>
-              <TableCell>
-                {post.published_at
-                  ? format(new Date(post.published_at), "MMM d, yyyy")
-                  : "-"}
-              </TableCell>
-              <TableCell className="space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => navigate(`/admin/posts/${post.id}`)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => navigate(`/blog/${post.id}`)}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleDelete(post.id)}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
+            <PostsTableRow
+              key={post.id}
+              post={post}
+              onDelete={handleDelete}
+              onNavigate={navigate}
+              selected={selectedPosts.includes(post.id)}
+              onSelect={(id, checked) => {
+                setSelectedPosts((prev) =>
+                  checked
+                    ? [...prev, id]
+                    : prev.filter((postId) => postId !== id)
+                );
+              }}
+            />
           ))}
         </TableBody>
       </Table>
@@ -218,14 +168,14 @@ export const PostsTable = () => {
         <div className="flex justify-center space-x-2 mt-4">
           <Button
             variant="outline"
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             Previous
           </Button>
           <Button
             variant="outline"
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
           >
             Next

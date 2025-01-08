@@ -6,50 +6,13 @@ import { PostsTable } from "@/components/admin/PostsTable";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { StatsCard, usePostStats } from "@/components/admin/StatsCard";
 
 const Admin = () => {
   const session = useSession();
   const navigate = useNavigate();
   const { role, loading } = useUserRole();
-
-  const { data: stats } = useQuery({
-    queryKey: ["post-stats"],
-    queryFn: async () => {
-      const { data: posts, error } = await supabase
-        .from("posts")
-        .select("status, views_count");
-
-      if (error) throw error;
-
-      const totalPosts = posts.length;
-      const publishedPosts = posts.filter(
-        (post) => post.status === "published"
-      ).length;
-      const draftPosts = posts.filter(
-        (post) => post.status === "draft"
-      ).length;
-      const totalViews = posts.reduce(
-        (sum, post) => sum + (post.views_count || 0),
-        0
-      );
-
-      return {
-        totalPosts,
-        publishedPosts,
-        draftPosts,
-        totalViews,
-      };
-    },
-  });
+  const { data: stats } = usePostStats();
 
   useEffect(() => {
     if (!session) {
@@ -76,45 +39,26 @@ const Admin = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Posts</CardTitle>
-              <CardDescription>All blog posts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{stats?.totalPosts || 0}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Published</CardTitle>
-              <CardDescription>Live posts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{stats?.publishedPosts || 0}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Drafts</CardTitle>
-              <CardDescription>Unpublished posts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{stats?.draftPosts || 0}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Views</CardTitle>
-              <CardDescription>All time views</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{stats?.totalViews || 0}</p>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Total Posts"
+            value={stats?.totalPosts || 0}
+            description="All blog posts"
+          />
+          <StatsCard
+            title="Published"
+            value={stats?.publishedPosts || 0}
+            description="Live posts"
+          />
+          <StatsCard
+            title="Drafts"
+            value={stats?.draftPosts || 0}
+            description="Unpublished posts"
+          />
+          <StatsCard
+            title="Total Views"
+            value={stats?.totalViews || 0}
+            description="All time views"
+          />
         </div>
 
         <PostsTable />
