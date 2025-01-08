@@ -9,15 +9,21 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   useEffect(() => {
     if (!isLoading && !session) {
+      console.log("No session found, redirecting to auth", { from: location });
       navigate("/auth", { state: { from: location } });
     }
   }, [session, isLoading, navigate, location]);
 
-  // Show loading state or return null while checking auth
   if (isLoading) {
+    console.log("Checking authentication...");
     return null;
   }
 
-  // Only render children if authenticated
-  return session ? <>{children}</> : null;
+  if (!session) {
+    console.log("No session, rendering null");
+    return null;
+  }
+
+  console.log("Session found, rendering protected content");
+  return <>{children}</>;
 }
