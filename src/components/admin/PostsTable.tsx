@@ -24,7 +24,7 @@ interface Post {
   views_count: number;
   author: {
     id: string;
-    username: string;  // Changed from email to username to match profiles table
+    username: string;
   };
 }
 
@@ -45,10 +45,7 @@ export const PostsTable = () => {
           created_at,
           published_at,
           views_count,
-          author:profiles!posts_author_id_fkey (
-            id,
-            username
-          )
+          author:profiles(id, username)
         `)
         .order("created_at", { ascending: false });
 
@@ -57,7 +54,7 @@ export const PostsTable = () => {
         throw error;
       }
 
-      return data as Post[];
+      return data as unknown as Post[];
     },
   });
 
