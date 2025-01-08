@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { PostTableProps } from "./types";
+import type { PostTableProps, PostStatus } from "./types";
 
 export const PostsTableRow = ({
   post,
@@ -21,7 +21,7 @@ export const PostsTableRow = ({
   onDelete,
   onNavigate,
 }: PostTableProps) => {
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: PostStatus) => {
     switch (status) {
       case "published":
         return "default";
@@ -32,6 +32,10 @@ export const PostsTableRow = ({
       default:
         return "secondary";
     }
+  };
+
+  const handleStatusChange = (newStatus: PostStatus) => {
+    onStatusChange(post.id, newStatus);
   };
 
   return (
@@ -45,7 +49,7 @@ export const PostsTableRow = ({
       <TableCell>{post.title}</TableCell>
       <TableCell>{post.author?.username || "Unknown"}</TableCell>
       <TableCell>
-        <Select value={post.status} onValueChange={(value) => onStatusChange(post.id, value)}>
+        <Select value={post.status} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[120px]">
             <SelectValue>
               <Badge variant={getStatusColor(post.status)}>{post.status}</Badge>

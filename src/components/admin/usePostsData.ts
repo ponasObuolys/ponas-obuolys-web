@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { Post, PostFilters } from "./types";
+import type { Post, PostFilters, PostStatus } from "./types";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -35,7 +35,7 @@ export const usePostsData = (filters: PostFilters) => {
       }
 
       if (filters.status !== "all") {
-        query = query.eq("status", filters.status);
+        query = query.eq("status", filters.status as PostStatus);
       }
 
       const { data, error, count } = await query;

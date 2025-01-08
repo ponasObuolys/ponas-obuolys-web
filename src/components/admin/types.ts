@@ -1,9 +1,11 @@
 import { Database } from "@/integrations/supabase/types";
 
+export type PostStatus = Database["public"]["Enums"]["post_status"];
+
 export type Post = {
   id: string;
   title: string;
-  status: Database["public"]["Enums"]["post_status"];
+  status: PostStatus;
   created_at: string;
   published_at: string | null;
   views_count: number;
@@ -35,7 +37,7 @@ export interface PostTableProps {
   post: Post;
   selected: boolean;
   onSelect: (id: string, checked: boolean) => void;
-  onStatusChange: (postId: string, newStatus: Post["status"]) => void;
+  onStatusChange: (postId: string, newStatus: PostStatus) => void;
   onDelete: (id: string) => void;
   onNavigate: (path: string) => void;
 }
