@@ -1,7 +1,6 @@
 import { Database } from "@/integrations/supabase/types";
 
 export type PostStatus = Database["public"]["Enums"]["post_status"];
-export type DatabasePost = Database["public"]["Tables"]["posts"]["Row"];
 
 export interface PostFormData {
   title: string;
@@ -13,7 +12,7 @@ export interface PostFormData {
   featuredImage: string;
 }
 
-export const mapDatabaseToFormData = (dbData: DatabasePost): PostFormData => {
+export const mapDatabaseToFormData = (dbData: Database["public"]["Tables"]["posts"]["Row"]): PostFormData => {
   return {
     title: dbData.title,
     content: dbData.content || "",

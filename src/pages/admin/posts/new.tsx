@@ -4,12 +4,13 @@ import AdminLayout from "@/components/admin/Layout";
 import PostForm from "@/components/editor/PostForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import type { PostFormData } from "@/types/post";
 
 export default function NewPost() {
   const navigate = useNavigate();
   const session = useSession();
   
-  const defaultValues = {
+  const initialFormData: PostFormData = {
     title: "",
     content: "",
     excerpt: "",
@@ -19,13 +20,32 @@ export default function NewPost() {
     featuredImage: "",
   };
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: PostFormData, newImage: File | null) => {
     if (!session?.user?.id) {
       toast.error("Turite būti prisijungęs");
       return;
     }
 
     try {
+      let imageUrl = data.featuredImage;
+      
+      if (newImage) {
+        const fileExt = newImage.name.split('.').pop();
+        const filePath = `${crypto.randomUUID()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('blog-media')
+          .upload(filePath, newImage);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('blog-media')
+          .getPublicUrl(filePath);
+          
+        imageUrl = publicUrl;
+      }
+
       const slug = data.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
@@ -34,6 +54,7 @@ export default function NewPost() {
       const postData = {
         ...data,
         slug,
+        featured_image: imageUrl,
         author_id: session.user.id,
         published_at: data.status === "published" ? new Date().toISOString() : null,
       };
@@ -62,7 +83,7 @@ export default function NewPost() {
         
         <div className="bg-white p-6 rounded-lg shadow">
           <PostForm
-            defaultValues={defaultValues}
+            defaultValues={initialFormData}
             onSubmit={handleSubmit}
             onCancel={() => navigate("/admin")}
           />
