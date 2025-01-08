@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,17 +9,20 @@ import type { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { session } = useAuth();
+  const location = useLocation();
+  const { session, isLoading } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    if (session) {
+    if (!isLoading && session) {
+      console.log("Redirecting to admin, session found:", { session });
       navigate("/admin");
     }
-  }, [session, navigate]);
+  }, [session, isLoading, navigate]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state change in Auth page:", { event, session });
       if (event === "SIGNED_IN") {
         navigate("/admin");
       }
@@ -54,6 +57,10 @@ const Auth = () => {
         return error.message;
     }
   };
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

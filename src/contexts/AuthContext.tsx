@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 type AuthContextType = {
   session: Session | null;
+  isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -15,17 +16,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setIsLoading(false);
       if (session) navigate("/admin");
     });
 
+    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", { event: _event, session });
       setSession(session);
+      setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -34,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       session,
+      isLoading,
       signIn: async (email: string, password: string) => {
         try {
           const { error } = await supabase.auth.signInWithPassword({
@@ -58,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       },
     }),
-    [session, navigate]
+    [session, isLoading, navigate]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

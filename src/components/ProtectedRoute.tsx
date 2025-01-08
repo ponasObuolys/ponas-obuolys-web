@@ -1,20 +1,23 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { session } = useAuth();
+  const { session, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    if (!session) {
-      navigate("/auth");
+    if (!isLoading && !session) {
+      navigate("/auth", { state: { from: location } });
     }
-  }, [session, navigate]);
+  }, [session, isLoading, navigate, location]);
 
-  if (!session) {
+  // Show loading state or return null while checking auth
+  if (isLoading) {
     return null;
   }
 
-  return <>{children}</>;
+  // Only render children if authenticated
+  return session ? <>{children}</> : null;
 }
