@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { pageParam = null } = await req.json()
+    const { pageParam = null, staleTime = DEFAULT_CACHE_DURATION } = await req.json()
     const API_KEY = Deno.env.get('YOUTUBE_API_KEY')
     const CHANNEL_ID = Deno.env.get('YOUTUBE_CHANNEL_ID')
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
@@ -29,15 +29,15 @@ serve(async (req) => {
     
     console.log('Checking cache for videos...')
     
-    // Query cached videos
+    // Query cached videos with improved indexing
     const { data: cachedVideos, error: cacheError } = await supabase
       .from('cached_youtube_videos')
       .select('*')
       .order('published_at', { ascending: false })
       .range(pageParam ? pageParam * maxResults : 0, (pageParam ? pageParam + 1 : 1) * maxResults - 1)
 
-    // Check if we need to refresh cache
-    const oldestAllowedCache = new Date(Date.now() - CACHE_DURATION)
+    // Check if we need to refresh cache using the provided stale time
+    const oldestAllowedCache = new Date(Date.now() - staleTime)
     const needsCacheRefresh = !cachedVideos?.length || 
       new Date(cachedVideos[0].cached_at) < oldestAllowedCache
 
