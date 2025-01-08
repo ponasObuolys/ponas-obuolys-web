@@ -46,7 +46,8 @@ export const PostsTable = () => {
           published_at,
           views_count,
           author:profiles(id, username)
-        `
+        `,
+          { count: 'exact' }
         )
         .order("created_at", { ascending: false })
         .range(
@@ -62,8 +63,7 @@ export const PostsTable = () => {
         query = query.eq("status", filters.status as Post["status"]);
       }
 
-      const { data, error } = await query;
-      const { count } = await query.count();
+      const { data, error, count } = await query;
 
       if (error) {
         console.error("Error fetching posts:", error);
