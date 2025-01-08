@@ -14,7 +14,7 @@ export const FeaturedVideos = () => {
     queryKey: ['featured-videos'],
     queryFn: () => fetchYouTubeVideos(null),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 30 * 60 * 1000, // 30 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes (renamed from cacheTime)
     refetchOnWindowFocus: false,
   });
 
