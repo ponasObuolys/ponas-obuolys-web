@@ -24,7 +24,7 @@ interface Post {
   views_count: number;
   author: {
     id: string;
-    username: string;
+    username: string | null;
   };
 }
 
@@ -33,6 +33,7 @@ export const PostsTable = () => {
   const { data: posts, isLoading, refetch } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
+      console.log("Fetching posts with author information...");
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("Not authenticated");
 
@@ -54,7 +55,8 @@ export const PostsTable = () => {
         throw error;
       }
 
-      return data as unknown as Post[];
+      console.log("Fetched posts:", data);
+      return data as Post[];
     },
   });
 
@@ -106,7 +108,7 @@ export const PostsTable = () => {
         {posts.map((post) => (
           <TableRow key={post.id}>
             <TableCell>{post.title}</TableCell>
-            <TableCell>{post.author.username}</TableCell>
+            <TableCell>{post.author?.username || "Unknown"}</TableCell>
             <TableCell>
               <Badge variant={getStatusColor(post.status)}>
                 {post.status}
