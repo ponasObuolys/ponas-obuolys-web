@@ -9,6 +9,7 @@ interface Post {
   id: string;
   title: string;
   excerpt: string;
+  slug: string;
   featured_image: string | null;
   published_at: string;
   author: {
@@ -27,6 +28,7 @@ const Blog = () => {
           id,
           title,
           excerpt,
+          slug,
           featured_image,
           published_at,
           author:profiles(username)
@@ -67,7 +69,7 @@ const Blog = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {posts?.map((post) => (
-              <Link key={post.id} to={`/blog/${post.id}`}>
+              <Link key={post.id} to={`/blog/${post.slug}`}>
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   {post.featured_image && (
                     <div className="aspect-video">

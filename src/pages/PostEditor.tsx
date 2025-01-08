@@ -7,6 +7,7 @@ import PostForm from "@/components/editor/PostForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PostFormData, mapDatabaseToFormData, mapFormToDatabase } from "@/types/post";
+import { slugify } from "@/utils/slugify";
 
 const PostEditor = () => {
   const { id } = useParams();
@@ -63,7 +64,6 @@ const PostEditor = () => {
       setError(null);
       let imageUrl = data.featuredImage;
       
-      // Handle image upload if there's a new image
       if (newImage) {
         const fileExt = newImage.name.split('.').pop();
         const filePath = `${crypto.randomUUID()}.${fileExt}`;
@@ -81,10 +81,7 @@ const PostEditor = () => {
         imageUrl = publicUrl;
       }
 
-      const slug = data.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+      const slug = slugify(data.title);
 
       const postData = {
         ...mapFormToDatabase(data),
