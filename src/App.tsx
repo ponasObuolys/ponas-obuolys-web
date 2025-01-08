@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Videos from "./pages/Videos";
 import Admin from "./pages/Admin";
+import Blog from "./pages/Blog";
 import PostEditor from "./pages/PostEditor";
 import { supabase } from "./integrations/supabase/client";
 
@@ -24,7 +25,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/videos" element={<Videos />} />
-            <Route path="/blog" element={<div>Blog Page Coming Soon</div>} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="/contact" element={<div>Contact Page Coming Soon</div>} />
             <Route path="/about" element={<div>About Page Coming Soon</div>} />
             <Route path="/admin" element={<Admin />} />
