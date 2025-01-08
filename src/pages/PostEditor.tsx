@@ -60,6 +60,7 @@ const PostEditor = () => {
 
   const handleSave = async (data: PostFormData, newImage: File | null) => {
     try {
+      setError(null);
       let imageUrl = data.featuredImage;
       
       // Handle image upload if there's a new image
