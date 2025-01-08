@@ -5,6 +5,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Post } from "./types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PostsTableRowProps {
   post: Post;
@@ -12,6 +19,7 @@ interface PostsTableRowProps {
   onNavigate: (path: string) => void;
   selected: boolean;
   onSelect: (id: string, checked: boolean) => void;
+  onStatusChange: (newStatus: Post["status"]) => void;
 }
 
 export const PostsTableRow = ({
@@ -20,6 +28,7 @@ export const PostsTableRow = ({
   onNavigate,
   selected,
   onSelect,
+  onStatusChange,
 }: PostsTableRowProps) => {
   const getStatusColor = (status: Post["status"]) => {
     switch (status) {
@@ -45,7 +54,18 @@ export const PostsTableRow = ({
       <TableCell>{post.title}</TableCell>
       <TableCell>{post.author?.username || "Unknown"}</TableCell>
       <TableCell>
-        <Badge variant={getStatusColor(post.status)}>{post.status}</Badge>
+        <Select value={post.status} onValueChange={onStatusChange}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue>
+              <Badge variant={getStatusColor(post.status)}>{post.status}</Badge>
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="published">Published</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="scheduled">Scheduled</SelectItem>
+          </SelectContent>
+        </Select>
       </TableCell>
       <TableCell>{post.views_count}</TableCell>
       <TableCell>{format(new Date(post.created_at), "MMM d, yyyy")}</TableCell>
