@@ -6,9 +6,10 @@ import { toast } from "@/components/ui/use-toast";
 
 interface MediaUploaderProps {
   onUpload: (url: string) => void;
+  disabled?: boolean;
 }
 
-const MediaUploader = ({ onUpload }: MediaUploaderProps) => {
+const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
   const [uploading, setUploading] = React.useState(false);
 
   const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,11 +22,11 @@ const MediaUploader = ({ onUpload }: MediaUploaderProps) => {
 
       const file = event.target.files[0];
       const fileExt = file.name.split(".").pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("blog-media")
-        .upload(filePath, file);
+        .upload(fileName, file);
 
       if (uploadError) {
         throw uploadError;
@@ -33,7 +34,7 @@ const MediaUploader = ({ onUpload }: MediaUploaderProps) => {
 
       const { data: { publicUrl } } = supabase.storage
         .from("blog-media")
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       onUpload(publicUrl);
       toast({
@@ -41,6 +42,7 @@ const MediaUploader = ({ onUpload }: MediaUploaderProps) => {
         description: "Image uploaded successfully",
       });
     } catch (error) {
+      console.error("Error uploading image:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -55,7 +57,7 @@ const MediaUploader = ({ onUpload }: MediaUploaderProps) => {
     <div>
       <Button
         variant="outline"
-        disabled={uploading}
+        disabled={disabled || uploading}
         onClick={() => document.getElementById("imageInput")?.click()}
       >
         {uploading ? (
@@ -70,7 +72,9 @@ const MediaUploader = ({ onUpload }: MediaUploaderProps) => {
         id="imageInput"
         accept="image/*"
         onChange={uploadImage}
+        onClick={(e) => e.stopPropagation()}
         className="hidden"
+        disabled={disabled}
       />
     </div>
   );

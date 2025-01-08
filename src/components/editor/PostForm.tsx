@@ -38,13 +38,25 @@ interface PostFormProps {
 }
 
 const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const form = useForm<PostFormData>({
     defaultValues,
   });
 
+  const handleSubmit = async (data: PostFormData) => {
+    try {
+      setIsSubmitting(true);
+      await onSubmit(data);
+    } catch (error) {
+      console.error("Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="title"
@@ -52,7 +64,7 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -66,7 +78,10 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
             <FormItem>
               <FormLabel>Content</FormLabel>
               <FormControl>
-                <RichTextEditor content={field.value} onChange={field.onChange} />
+                <RichTextEditor 
+                  content={field.value} 
+                  onChange={field.onChange} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -81,7 +96,10 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
               <FormLabel>Featured Image</FormLabel>
               <FormControl>
                 <div className="space-y-4">
-                  <MediaUploader onUpload={(url) => field.onChange(url)} />
+                  <MediaUploader 
+                    onUpload={(url) => field.onChange(url)} 
+                    disabled={isSubmitting}
+                  />
                   {field.value && (
                     <img
                       src={field.value}
@@ -103,7 +121,7 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
             <FormItem>
               <FormLabel>Excerpt</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea {...field} disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -116,7 +134,11 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+                disabled={isSubmitting}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
@@ -140,7 +162,7 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
             <FormItem>
               <FormLabel>Meta Title</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,7 +176,7 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
             <FormItem>
               <FormLabel>Meta Description</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea {...field} disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -162,10 +184,20 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
         />
 
         <div className="flex justify-end space-x-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
-          <Button type="submit">Save</Button>
+          <Button 
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Save"}
+          </Button>
         </div>
       </form>
     </Form>
