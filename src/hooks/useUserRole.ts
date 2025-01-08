@@ -18,18 +18,28 @@ export const useUserRole = () => {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
 
-      if (error) {
-        console.error("Error fetching user role:", error);
+        if (error) {
+          console.error("Error fetching user role:", error);
+          setRole(null);
+        } else if (data && data.length > 0) {
+          // Take the most recently created role
+          setRole(data[0].role);
+        } else {
+          setRole(null);
+        }
+      } catch (error) {
+        console.error("Error in fetchUserRole:", error);
         setRole(null);
-      } else if (data) {
-        setRole(data.role);
       }
+      
       setLoading(false);
     };
 
