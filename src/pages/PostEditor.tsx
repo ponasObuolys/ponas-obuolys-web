@@ -15,6 +15,9 @@ interface PostFormData {
   meta_title: string;
   meta_description: string;
   featured_image?: string;
+  metaTitle: string;
+  metaDescription: string;
+  featuredImage: string;
 }
 
 const PostEditor = () => {
@@ -30,6 +33,9 @@ const PostEditor = () => {
     status: "draft",
     meta_title: "",
     meta_description: "",
+    metaTitle: "",
+    metaDescription: "",
+    featuredImage: "",
   });
 
   useEffect(() => {

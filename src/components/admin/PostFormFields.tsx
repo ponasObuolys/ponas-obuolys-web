@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "@/components/editor/RichTextEditor";
-import { MediaUploader } from "@/components/editor/MediaUploader";
+import MediaUploader from "@/components/editor/MediaUploader";
 
 interface PostFormFieldsProps {
   title: string;
@@ -65,8 +65,7 @@ export const PostFormFields = ({
           Pagrindinė nuotrauka
         </label>
         <MediaUploader
-          value={featuredImage}
-          onChange={onFeaturedImageChange}
+          onUpload={onFeaturedImageChange}
           disabled={isSubmitting}
         />
       </div>
