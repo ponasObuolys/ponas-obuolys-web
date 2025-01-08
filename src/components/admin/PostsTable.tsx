@@ -56,7 +56,8 @@ export const PostsTable = () => {
         query = query.eq("status", statusFilter as Post["status"]);
       }
 
-      const { data, error, count } = await query.select("*", { count: "exact" });
+      const { data, error } = await query;
+      const { count } = await query.count();
 
       if (error) {
         console.error("Error fetching posts:", error);
@@ -89,6 +90,26 @@ export const PostsTable = () => {
     }
     toast.success("Post deleted successfully");
     refetch();
+  };
+
+  const handleStatusChange = (postId: string) => async (newStatus: Post["status"]) => {
+    try {
+      const { error } = await supabase
+        .from("posts")
+        .update({ 
+          status: newStatus,
+          published_at: newStatus === "published" ? new Date().toISOString() : null 
+        })
+        .eq("id", postId);
+      
+      if (error) throw error;
+      
+      toast.success(`Post status updated to ${newStatus}`);
+      refetch();
+    } catch (error) {
+      console.error("Error updating post status:", error);
+      toast.error("Failed to update post status");
+    }
   };
 
   const handleBulkAction = async (action: string) => {
@@ -162,6 +183,7 @@ export const PostsTable = () => {
               post={post}
               onDelete={handleDelete}
               onNavigate={navigate}
+              onStatusChange={handleStatusChange(post.id)}
               selected={selectedPosts.includes(post.id)}
               onSelect={(id, checked) => {
                 setSelectedPosts((prev) =>
