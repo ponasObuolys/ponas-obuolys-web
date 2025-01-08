@@ -6,6 +6,7 @@ import BlogPost from "@/pages/BlogPost";
 import Admin from "@/pages/Admin";
 import Editor from "@/pages/Editor";
 import Settings from "@/pages/Settings";
+import Auth from "@/pages/Auth";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "/settings",
         element: <Settings />,
+      },
+      {
+        path: "/auth",
+        element: <Auth />,
       },
     ],
   },
