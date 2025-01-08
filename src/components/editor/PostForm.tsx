@@ -44,7 +44,7 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleImageChange = (file: File) => {
+  const handleImageUpload = (file: File) => {
     setNewImage(file);
   };
 
@@ -60,7 +60,7 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
         onMetaTitleChange={handleFieldChange("metaTitle")}
         onMetaDescriptionChange={handleFieldChange("metaDescription")}
         onFeaturedImageChange={handleFieldChange("featuredImage")}
-        onImageUpload={handleImageChange}
+        onImageUpload={handleImageUpload}
       />
       <PostFormActions isSubmitting={isSubmitting} onCancel={onCancel} />
     </form>

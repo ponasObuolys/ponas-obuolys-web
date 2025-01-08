@@ -3,12 +3,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "@/components/editor/RichTextEditor";
 import MediaUploader from "@/components/editor/MediaUploader";
+import { PostStatus } from "@/types/post";
 
 interface PostFormFieldsProps {
   title: string;
   content: string;
   excerpt: string;
-  status: string;
+  status: PostStatus;
   metaTitle: string;
   metaDescription: string;
   featuredImage: string;
@@ -20,6 +21,7 @@ interface PostFormFieldsProps {
   onMetaTitleChange: (value: string) => void;
   onMetaDescriptionChange: (value: string) => void;
   onFeaturedImageChange: (value: string) => void;
+  onImageUpload: (file: File) => void;
 }
 
 export const PostFormFields = ({
@@ -38,6 +40,7 @@ export const PostFormFields = ({
   onMetaTitleChange,
   onMetaDescriptionChange,
   onFeaturedImageChange,
+  onImageUpload,
 }: PostFormFieldsProps) => {
   return (
     <div className="space-y-6">
@@ -65,7 +68,7 @@ export const PostFormFields = ({
           Pagrindinė nuotrauka
         </label>
         <MediaUploader
-          onUpload={onFeaturedImageChange}
+          onUpload={onImageUpload}
           disabled={isSubmitting}
         />
       </div>
