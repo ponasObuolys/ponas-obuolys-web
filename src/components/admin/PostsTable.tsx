@@ -23,6 +23,7 @@ interface Post {
   published_at: string | null;
   views_count: number;
   author: {
+    id: string;
     email: string;
   };
 }
