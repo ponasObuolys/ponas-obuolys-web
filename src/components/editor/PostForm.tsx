@@ -4,15 +4,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PostFormFields } from "@/components/admin/PostFormFields";
 import { PostFormActions } from "@/components/admin/PostFormActions";
-import type { PostFormData } from "@/types/post";
+import type { PostFormData, PostFormProps } from "@/types/post";
 
-interface PostFormProps {
-  defaultValues?: PostFormData;
-  onSubmit: (data: PostFormData, newImage: File | null) => Promise<void>;
-  onCancel: () => void;
-}
-
-const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
+const PostForm = ({ defaultValues, onSubmit, onCancel, onPreview, isPreviewLoading }: PostFormProps) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newImage, setNewImage] = useState<File | null>(null);
@@ -51,6 +45,12 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
     setFormData(prev => ({ ...prev, featuredImage: previewUrl }));
   };
 
+  const handlePreview = async () => {
+    if (onPreview) {
+      await onPreview(formData);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <PostFormFields
@@ -65,7 +65,12 @@ const PostForm = ({ defaultValues, onSubmit, onCancel }: PostFormProps) => {
         onFeaturedImageChange={handleFieldChange("featuredImage")}
         onImageUpload={handleImageUpload}
       />
-      <PostFormActions isSubmitting={isSubmitting} onCancel={onCancel} />
+      <PostFormActions 
+        isSubmitting={isSubmitting} 
+        onCancel={onCancel}
+        onPreview={handlePreview}
+        isPreviewLoading={isPreviewLoading}
+      />
     </form>
   );
 };
