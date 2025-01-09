@@ -32,17 +32,20 @@ export function NewsCard({
 
   const getPreviewText = () => {
     if (excerpt) return excerpt;
-    if (content) return content.substring(0, 200);
+    if (content) {
+      const cleaned = content.replace(/<[^>]*>/g, ''); // Remove HTML tags
+      return cleaned.length > 200 
+        ? `${cleaned.substring(0, 200)}...` 
+        : cleaned;
+    }
     return null;
   };
 
-  const previewText = getPreviewText();
-
   return (
     <Link to={`/naujienos/${slug}`}>
-      <Card className="min-h-[500px] flex flex-col hover:shadow-lg transition-shadow">
+      <Card className="h-[600px] flex flex-col hover:shadow-lg transition-shadow">
         {featured_image && (
-          <div className="aspect-video">
+          <div className="h-[300px]">
             <img
               src={featured_image}
               alt={title}
@@ -50,21 +53,25 @@ export function NewsCard({
             />
           </div>
         )}
-        <CardContent className="p-6 flex-grow flex flex-col">
+        <CardContent className="p-6 flex flex-col flex-grow">
           <h3 className="text-xl font-semibold mb-3 line-clamp-2">
             {title}
           </h3>
-          <div className="flex items-center text-sm text-gray-500 space-x-2 mb-4">
+          <div className="flex items-center text-sm text-gray-500 mb-4">
             <span>{formatLithuanianDate(published_at)}</span>
-            <span>•</span>
+            <span className="mx-2">•</span>
             <span>{author?.username || "ponas Obuolys"}</span>
           </div>
-          {previewText && (
-            <p className="text-gray-600 line-clamp-3 mb-6">
-              {previewText}
-            </p>
-          )}
-          <Button className="mt-auto w-full">Skaityti naujieną</Button>
+          <div className="flex-grow">
+            {getPreviewText() && (
+              <p className="text-gray-600 line-clamp-3">
+                {getPreviewText()}
+              </p>
+            )}
+          </div>
+          <Button variant="default" className="w-full mt-4">
+            Skaityti naujieną
+          </Button>
         </CardContent>
       </Card>
     </Link>
