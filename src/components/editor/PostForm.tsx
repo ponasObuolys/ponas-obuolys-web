@@ -47,7 +47,12 @@ const PostForm = ({ defaultValues, onSubmit, onCancel, onPreview, isPreviewLoadi
 
   const handlePreview = async () => {
     if (onPreview) {
-      await onPreview(formData);
+      try {
+        await onPreview(formData);
+      } catch (error) {
+        console.error("Preview failed:", error);
+        toast.error("Failed to generate preview");
+      }
     }
   };
 
