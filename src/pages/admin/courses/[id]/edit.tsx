@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import AdminLayout from "@/components/admin/Layout";
 import CourseForm from "@/components/admin/courses/CourseForm";
 import CourseContent from "@/components/admin/courses/CourseContent";
@@ -33,45 +34,52 @@ export default function EditCoursePage() {
   });
 
   const handleSubmit = async (data: CourseFormData, thumbnail: File | null) => {
-    let thumbnailUrl = data.thumbnail;
-    
-    if (thumbnail) {
-      const fileExt = thumbnail.name.split(".").pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    try {
+      let thumbnailUrl = data.thumbnail;
       
-      const { error: uploadError } = await supabase.storage
-        .from("course-content")
-        .upload(filePath, thumbnail);
+      if (thumbnail) {
+        const fileExt = thumbnail.name.split(".").pop();
+        const filePath = `${crypto.randomUUID()}.${fileExt}`;
         
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from("course-content")
+          .upload(filePath, thumbnail);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from("course-content")
+          .getPublicUrl(filePath);
+          
+        thumbnailUrl = publicUrl;
+      }
+
+      const { error } = await supabase
+        .from("courses")
+        .update({
+          title: data.title,
+          description: data.description,
+          price: data.price,
+          currency: data.currency,
+          thumbnail: thumbnailUrl,
+          start_date: data.start_date.toISOString(),
+          end_date: data.end_date.toISOString(),
+          status: data.status
+        })
+        .eq("id", id);
+
+      if (error) throw error;
       
-      const { data: { publicUrl } } = supabase.storage
-        .from("course-content")
-        .getPublicUrl(filePath);
-        
-      thumbnailUrl = publicUrl;
+      toast.success("Kursas sėkmingai atnaujintas");
+      navigate("/admin/courses");
+    } catch (error) {
+      console.error("Failed to update course:", error);
+      toast.error("Nepavyko atnaujinti kurso");
     }
-
-    const { error } = await supabase
-      .from("courses")
-      .update({
-        title: data.title,
-        description: data.description,
-        price: data.price,
-        currency: data.currency,
-        thumbnail: thumbnailUrl,
-        start_date: data.start_date.toISOString(),
-        end_date: data.end_date.toISOString(),
-        status: data.status
-      })
-      .eq("id", id);
-
-    if (error) throw error;
   };
 
   if (isLoading) return null;
 
-  // Transform database course to form data
   const formData: CourseFormData = {
     title: course?.title || "",
     description: course?.description || "",
@@ -82,7 +90,7 @@ export default function EditCoursePage() {
     tags: course?.course_tags?.map(ct => ct.tags.id) || [],
     start_date: course?.start_date ? new Date(course.start_date) : new Date(),
     end_date: course?.end_date ? new Date(course.end_date) : new Date(),
-    status: course?.status || "upcoming"
+    status: course?.status || "draft"
   };
 
   return (
