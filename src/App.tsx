@@ -8,8 +8,10 @@ import Admin from "@/pages/Admin";
 import Editor from "@/pages/Editor";
 import Settings from "@/pages/Settings";
 import Videos from "@/pages/Videos";
+import Auth from "@/pages/Auth";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +19,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+    errorElement: <ErrorBoundary><NotFound /></ErrorBoundary>,
     children: [
       {
         path: "/",
@@ -25,6 +28,10 @@ const router = createBrowserRouter([
             <Index />
           </MainLayout>
         ),
+      },
+      {
+        path: "/auth",
+        element: <Auth />,
       },
       {
         path: "/naujienos",
