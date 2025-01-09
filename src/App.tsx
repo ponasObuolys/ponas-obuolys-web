@@ -23,7 +23,7 @@ function App() {
         <ErrorBoundary>
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Root />}>
+              <Route element={<Root />}>
                 <Route index element={<Index />} />
                 <Route path="blog" element={<Blog />} />
                 <Route path="blog/:slug" element={<BlogPost />} />

@@ -1,3 +1,4 @@
+import { useSession } from "@supabase/auth-helpers-react";
 import Navigation from "./Navigation";
 
 interface MainLayoutProps {
@@ -5,6 +6,9 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
+  const session = useSession();
+  console.log("MainLayout rendered with session:", !!session);
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />

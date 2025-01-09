@@ -11,7 +11,6 @@ const Editor = () => {
         <h1 className="text-2xl font-bold mb-6">
           {id ? "Edit Post" : "New Post"}
         </h1>
-        {/* Editor content will be implemented later */}
         <div className="text-muted-foreground">
           Editor functionality coming soon...
         </div>
