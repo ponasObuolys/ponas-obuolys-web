@@ -31,7 +31,7 @@ const router = createBrowserRouter([
       {
         path: "kursai",
         element: <KursaiLayout />,
-        errorElement: <ErrorBoundary />,
+        errorElement: <div className="container mx-auto py-8"><ErrorBoundary>Kažkas nepavyko. Bandykite dar kartą vėliau.</ErrorBoundary></div>,
         children: [
           {
             index: true,
