@@ -43,7 +43,11 @@ export function LatestNews() {
         throw error;
       }
 
-      return data as Post[];
+      // Transform the data to set default author if none exists
+      return (data as Post[]).map(post => ({
+        ...post,
+        author: post.author?.username ? post.author : { username: "ponas Obuolys" }
+      }));
     },
   });
 
@@ -54,7 +58,7 @@ export function LatestNews() {
           <h2 className="text-3xl font-bold mb-8">Naujienos</h2>
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             {[1, 2, 3].map((n) => (
-              <Card key={n} className="animate-pulse">
+              <Card key={n} className="animate-pulse min-h-[500px]">
                 <div className="h-48 bg-gray-200" />
                 <CardContent className="p-6 space-y-4">
                   <div className="h-6 bg-gray-200 rounded w-3/4" />
@@ -71,6 +75,10 @@ export function LatestNews() {
     );
   }
 
+  const formatLithuanianDate = (date: string) => {
+    return format(new Date(date), "yyyy 'm.' MMMM d 'd.'", { locale: lt });
+  };
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -79,7 +87,7 @@ export function LatestNews() {
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {posts?.map((post) => (
             <Link key={post.id} to={`/naujienos/${post.slug}`}>
-              <Card className="h-full hover:shadow-lg transition-shadow">
+              <Card className="min-h-[500px] flex flex-col hover:shadow-lg transition-shadow">
                 {post.featured_image && (
                   <div className="aspect-video">
                     <img
@@ -89,27 +97,21 @@ export function LatestNews() {
                     />
                   </div>
                 )}
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold mb-2 line-clamp-2">
+                <CardContent className="p-6 flex-grow flex flex-col">
+                  <h3 className="text-xl font-semibold mb-3 line-clamp-2">
                     {post.title}
                   </h3>
-                  <div className="flex items-center text-sm text-gray-500 space-x-2 mb-3">
-                    <span>
-                      {format(new Date(post.published_at), "MMMM d, yyyy", { locale: lt })}
-                    </span>
-                    {post.author?.username && (
-                      <>
-                        <span>•</span>
-                        <span>{post.author.username}</span>
-                      </>
-                    )}
+                  <div className="flex items-center text-sm text-gray-500 space-x-2 mb-4">
+                    <span>{formatLithuanianDate(post.published_at)}</span>
+                    <span>•</span>
+                    <span>{post.author.username}</span>
                   </div>
                   {post.excerpt && (
-                    <p className="text-gray-600 line-clamp-3 mb-4">
+                    <p className="text-gray-600 line-clamp-3 mb-6">
                       {post.excerpt}
                     </p>
                   )}
-                  <Button className="w-full">Skaityti naujieną</Button>
+                  <Button className="mt-auto w-full">Skaityti naujieną</Button>
                 </CardContent>
               </Card>
             </Link>
