@@ -47,7 +47,7 @@ const Blog = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <h1 className="text-4xl font-bold text-gray-900 mb-8">Blogas</h1>
+      <h1 className="text-4xl font-bold text-gray-900 mb-8">Naujienos</h1>
       
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -66,7 +66,7 @@ const Blog = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {posts?.map((post) => (
-            <Link key={post.id} to={`/blog/${post.slug}`}>
+            <Link key={post.id} to={`/naujienos/${post.slug}`}>
               <Card className="h-full hover:shadow-lg transition-shadow">
                 {post.featured_image && (
                   <div className="aspect-video">

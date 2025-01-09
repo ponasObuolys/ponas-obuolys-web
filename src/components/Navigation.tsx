@@ -41,7 +41,7 @@ const Navigation = () => {
   const navLinks = [
     { name: "Pradžia", path: "/" },
     { name: "Vaizdo įrašai", path: "/videos" },
-    { name: "Blogas", path: "/blog" },
+    { name: "Naujienos", path: "/naujienos" },
     { name: "Kontaktai", path: "/contact" },
     { name: "Apie", path: "/about" },
     ...(role === "admin" ? [{ name: "Admin", path: "/admin" }] : []),
