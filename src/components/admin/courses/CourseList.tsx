@@ -99,9 +99,12 @@ const CourseList = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Kursai</h1>
-        <Button onClick={() => navigate("/admin/courses/new")}>
+        <Button 
+          onClick={() => navigate("/admin/kursai/naujas")}
+          className="shadow-sm bg-primary hover:bg-primary/90"
+        >
           <PlusCircle className="h-4 w-4 mr-2" />
-          Naujas kursas
+          Pridėti naują kursą
         </Button>
       </div>
 

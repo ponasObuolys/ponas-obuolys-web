@@ -184,6 +184,7 @@ export type Database = {
           end_date: string
           id: string
           price: number
+          search_vector: unknown | null
           start_date: string
           status: Database["public"]["Enums"]["course_status"]
           thumbnail: string
@@ -198,6 +199,7 @@ export type Database = {
           end_date?: string
           id?: string
           price: number
+          search_vector?: unknown | null
           start_date?: string
           status?: Database["public"]["Enums"]["course_status"]
           thumbnail: string
@@ -212,6 +214,7 @@ export type Database = {
           end_date?: string
           id?: string
           price?: number
+          search_vector?: unknown | null
           start_date?: string
           status?: Database["public"]["Enums"]["course_status"]
           thumbnail?: string
@@ -501,7 +504,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
-      course_status: "upcoming" | "active" | "completed"
+      course_status: "upcoming" | "active" | "completed" | "draft"
       currency_type: "USD" | "EUR" | "LTL"
       post_status: "draft" | "published" | "scheduled"
     }
