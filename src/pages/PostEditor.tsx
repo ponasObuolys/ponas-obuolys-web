@@ -36,28 +36,45 @@ const PostEditor = () => {
 
   useEffect(() => {
     const fetchPost = async () => {
-      if (id) {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log("Fetching post with ID:", id);
         const { data, error } = await supabase
           .from("posts")
           .select("*")
           .eq("id", id)
-          .single();
+          .maybeSingle();
 
         if (error) {
+          console.error("Error fetching post:", error);
           setError("Failed to fetch post. Please try again.");
           toast.error("Failed to fetch post. Please try again.");
           return;
         }
 
         if (data) {
+          console.log("Post data retrieved:", data);
           setDefaultValues(mapDatabaseToFormData(data));
+        } else {
+          console.log("No post found with ID:", id);
+          toast.error("Post not found");
+          navigate("/admin");
         }
+      } catch (err) {
+        console.error("Error in fetchPost:", err);
+        setError("An unexpected error occurred");
+        toast.error("An unexpected error occurred");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchPost();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleSave = async (data: PostFormData, newImage: File | null) => {
     try {
