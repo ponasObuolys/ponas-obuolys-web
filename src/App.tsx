@@ -4,11 +4,14 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Root from "@/components/Root";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
 import Admin from "@/pages/Admin";
 import NewCourse from "@/pages/admin/courses/new";
 import CourseList from "@/components/admin/courses/CourseList";
+import KursaiLayout from "@/components/courses/KursaiLayout";
+import KursaiPage from "@/pages/Kursai";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +27,17 @@ const router = createBrowserRouter([
       {
         path: "auth",
         element: <Auth />,
+      },
+      {
+        path: "kursai",
+        element: <KursaiLayout />,
+        errorElement: <ErrorBoundary />,
+        children: [
+          {
+            index: true,
+            element: <KursaiPage />,
+          },
+        ],
       },
       {
         path: "admin",
