@@ -16,6 +16,9 @@ export interface CourseFormData {
   thumbnail: string;
   categories: string[];
   tags: string[];
+  start_date: Date;
+  end_date: Date;
+  status: 'upcoming' | 'active' | 'completed';
 }
 
 export interface CourseFilters {
@@ -24,4 +27,5 @@ export interface CourseFilters {
   minPrice: number;
   maxPrice: number;
   page: number;
+  status?: 'upcoming' | 'active' | 'completed';
 }

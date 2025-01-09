@@ -181,8 +181,11 @@ export type Database = {
           created_at: string
           currency: Database["public"]["Enums"]["currency_type"]
           description: string
+          end_date: string
           id: string
           price: number
+          start_date: string
+          status: Database["public"]["Enums"]["course_status"]
           thumbnail: string
           title: string
           updated_at: string
@@ -192,8 +195,11 @@ export type Database = {
           created_at?: string
           currency?: Database["public"]["Enums"]["currency_type"]
           description: string
+          end_date?: string
           id?: string
           price: number
+          start_date?: string
+          status?: Database["public"]["Enums"]["course_status"]
           thumbnail: string
           title: string
           updated_at?: string
@@ -203,8 +209,11 @@ export type Database = {
           created_at?: string
           currency?: Database["public"]["Enums"]["currency_type"]
           description?: string
+          end_date?: string
           id?: string
           price?: number
+          start_date?: string
+          status?: Database["public"]["Enums"]["course_status"]
           thumbnail?: string
           title?: string
           updated_at?: string
@@ -492,6 +501,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      course_status: "upcoming" | "active" | "completed"
       currency_type: "USD" | "EUR" | "LTL"
       post_status: "draft" | "published" | "scheduled"
     }
