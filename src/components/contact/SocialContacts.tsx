@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Facebook, MessageCircle, Phone, Mail, MessageSquare } from "lucide-react";
+import { Facebook, MessageCircle, Phone, Mail, MessageSquare, Youtube, Instagram, Coffee } from "lucide-react";
 
 const ContactPage = () => {
   return (
@@ -24,7 +24,7 @@ const ContactPage = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Socialiniai tinklai</h3>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
                 <a href="https://www.facebook.com/ponasObuolys.youtube" target="_blank" rel="noopener noreferrer">
                   <Button variant="default" size="icon" className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
                     <Facebook className="h-5 w-5" />
@@ -38,6 +38,26 @@ const ContactPage = () => {
                 <a href="https://wa.me/37067168860" target="_blank" rel="noopener noreferrer">
                   <Button variant="default" size="icon" className="bg-[#25D366] hover:bg-[#25D366]/90 text-white">
                     <MessageSquare className="h-5 w-5" />
+                  </Button>
+                </a>
+                <a href="https://youtube.com/@ponasObuolys?sub_confirmation=1" target="_blank" rel="noopener noreferrer">
+                  <Button variant="default" size="icon" className="bg-[#FF0000] hover:bg-[#FF0000]/90 text-white">
+                    <Youtube className="h-5 w-5" />
+                  </Button>
+                </a>
+                <a href="https://www.instagram.com/ponasobuolys/" target="_blank" rel="noopener noreferrer">
+                  <Button variant="default" size="icon" className="bg-[#E4405F] hover:bg-[#E4405F]/90 text-white">
+                    <Instagram className="h-5 w-5" />
+                  </Button>
+                </a>
+                <a href="https://patreon.com/ponasObuolys" target="_blank" rel="noopener noreferrer">
+                  <Button variant="default" size="icon" className="bg-[#FF424D] hover:bg-[#FF424D]/90 text-white">
+                    <MessageSquare className="h-5 w-5" />
+                  </Button>
+                </a>
+                <a href="https://buymeacoffee.com/ponasobuolys" target="_blank" rel="noopener noreferrer">
+                  <Button variant="default" size="icon" className="bg-[#FFDD00] hover:bg-[#FFDD00]/90 text-black">
+                    <Coffee className="h-5 w-5" />
                   </Button>
                 </a>
               </div>
