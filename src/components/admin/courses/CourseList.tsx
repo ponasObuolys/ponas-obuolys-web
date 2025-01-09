@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PlusCircle, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Course, CourseFilters } from "@/types/course";
 
@@ -17,9 +18,10 @@ const CourseList = () => {
     minPrice: 0,
     maxPrice: 0,
     page: 1,
+    status: undefined
   });
 
-  const { data: courses, isLoading } = useQuery({
+  const { data: courses, isLoading, refetch } = useQuery({
     queryKey: ["courses", filters],
     queryFn: async () => {
       let query = supabase
@@ -40,6 +42,10 @@ const CourseList = () => {
         query = query.eq("course_categories.category_id", filters.category);
       }
 
+      if (filters.status) {
+        query = query.eq("status", filters.status);
+      }
+
       if (filters.minPrice > 0) {
         query = query.gte("price", filters.minPrice);
       }
@@ -56,14 +62,36 @@ const CourseList = () => {
   });
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from("courses")
-      .delete()
-      .eq("id", id);
+    try {
+      const { error } = await supabase
+        .from("courses")
+        .delete()
+        .eq("id", id);
 
-    if (error) {
+      if (error) throw error;
+
+      toast.success("Kursas sėkmingai ištrintas");
+      refetch();
+    } catch (error) {
       console.error("Error deleting course:", error);
-      return;
+      toast.error("Nepavyko ištrinti kurso");
+    }
+  };
+
+  const handleStatusChange = async (id: string, newStatus: Course['status']) => {
+    try {
+      const { error } = await supabase
+        .from("courses")
+        .update({ status: newStatus })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Kurso būsena atnaujinta");
+      refetch();
+    } catch (error) {
+      console.error("Error updating course status:", error);
+      toast.error("Nepavyko atnaujinti kurso būsenos");
     }
   };
 
@@ -84,15 +112,17 @@ const CourseList = () => {
           onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
         />
         <Select
-          value={filters.category}
-          onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}
+          value={filters.status}
+          onValueChange={(value) => setFilters(prev => ({ ...prev, status: value as Course['status'] | undefined }))}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Filtruoti pagal kategoriją" />
+            <SelectValue placeholder="Filtruoti pagal būseną" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Visos kategorijos</SelectItem>
-            {/* Add categories dynamically */}
+            <SelectItem value="">Visos būsenos</SelectItem>
+            <SelectItem value="upcoming">Būsimi</SelectItem>
+            <SelectItem value="active">Vykstantys</SelectItem>
+            <SelectItem value="completed">Pasibaigę</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -104,7 +134,8 @@ const CourseList = () => {
               <TableHead>Pavadinimas</TableHead>
               <TableHead>Kaina</TableHead>
               <TableHead>Autorius</TableHead>
-              <TableHead>Sukurta</TableHead>
+              <TableHead>Būsena</TableHead>
+              <TableHead>Datos</TableHead>
               <TableHead className="text-right">Veiksmai</TableHead>
             </TableRow>
           </TableHeader>
@@ -117,7 +148,23 @@ const CourseList = () => {
                 </TableCell>
                 <TableCell>{course.profiles?.username}</TableCell>
                 <TableCell>
-                  {new Date(course.created_at).toLocaleDateString("lt-LT")}
+                  <Select
+                    value={course.status}
+                    onValueChange={(value) => handleStatusChange(course.id, value as Course['status'])}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="upcoming">Būsimas</SelectItem>
+                      <SelectItem value="active">Vykstantis</SelectItem>
+                      <SelectItem value="completed">Pasibaigęs</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  {new Date(course.start_date).toLocaleDateString("lt-LT")} - 
+                  {new Date(course.end_date).toLocaleDateString("lt-LT")}
                 </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button

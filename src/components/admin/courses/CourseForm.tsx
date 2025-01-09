@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "@/components/editor/RichTextEditor";
 import MediaUploader from "@/components/editor/MediaUploader";
@@ -28,6 +27,9 @@ const CourseForm = ({ defaultValues, onSubmit, onCancel }: CourseFormProps) => {
     thumbnail: defaultValues?.thumbnail || "",
     categories: defaultValues?.categories || [],
     tags: defaultValues?.tags || [],
+    start_date: defaultValues?.start_date || new Date(),
+    end_date: defaultValues?.end_date || new Date(),
+    status: defaultValues?.status || "upcoming"
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,6 +81,42 @@ const CourseForm = ({ defaultValues, onSubmit, onCancel }: CourseFormProps) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
+          <label htmlFor="start_date" className="text-sm font-medium">
+            Pradžios data
+          </label>
+          <Input
+            id="start_date"
+            type="datetime-local"
+            value={formData.start_date.toISOString().slice(0, 16)}
+            onChange={(e) => setFormData(prev => ({ 
+              ...prev, 
+              start_date: new Date(e.target.value) 
+            }))}
+            disabled={isSubmitting}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="end_date" className="text-sm font-medium">
+            Pabaigos data
+          </label>
+          <Input
+            id="end_date"
+            type="datetime-local"
+            value={formData.end_date.toISOString().slice(0, 16)}
+            onChange={(e) => setFormData(prev => ({ 
+              ...prev, 
+              end_date: new Date(e.target.value) 
+            }))}
+            disabled={isSubmitting}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
           <label htmlFor="price" className="text-sm font-medium">
             Kaina
           </label>
@@ -116,6 +154,29 @@ const CourseForm = ({ defaultValues, onSubmit, onCancel }: CourseFormProps) => {
       </div>
 
       <div className="space-y-2">
+        <label htmlFor="status" className="text-sm font-medium">
+          Būsena
+        </label>
+        <Select
+          value={formData.status}
+          onValueChange={(value) => setFormData(prev => ({ 
+            ...prev, 
+            status: value as "upcoming" | "active" | "completed" 
+          }))}
+          disabled={isSubmitting}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Pasirinkite būseną" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="upcoming">Būsimas</SelectItem>
+            <SelectItem value="active">Vykstantis</SelectItem>
+            <SelectItem value="completed">Pasibaigęs</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
         <label className="text-sm font-medium">
           Nuotrauka
         </label>
@@ -123,6 +184,13 @@ const CourseForm = ({ defaultValues, onSubmit, onCancel }: CourseFormProps) => {
           onUpload={handleThumbnailUpload}
           disabled={isSubmitting}
         />
+        {formData.thumbnail && (
+          <img 
+            src={formData.thumbnail} 
+            alt="Course thumbnail preview" 
+            className="mt-2 max-w-xs rounded-lg shadow-sm"
+          />
+        )}
       </div>
 
       <div className="flex justify-end gap-4">
