@@ -31,17 +31,22 @@ export const PostsTable = () => {
   const { data: postsData, isLoading, refetch } = usePostsData(filters);
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("posts").delete().eq("id", id);
-    if (error) {
+    try {
+      console.log("Deleting post with ID:", id);
+      const { error } = await supabase.from("posts").delete().eq("id", id);
+      if (error) throw error;
+      
+      toast.success("Post deleted successfully");
+      refetch();
+    } catch (error) {
+      console.error("Error deleting post:", error);
       toast.error("Failed to delete post");
-      return;
     }
-    toast.success("Post deleted successfully");
-    refetch();
   };
 
-  const handleStatusChange = (postId: string) => async (newStatus: Post["status"]) => {
+  const handleStatusChange = async (postId: string, newStatus: Post["status"]) => {
     try {
+      console.log("Updating post status:", { postId, newStatus });
       const { error } = await supabase
         .from("posts")
         .update({ 
@@ -64,6 +69,7 @@ export const PostsTable = () => {
     if (!selectedPosts.length) return;
 
     try {
+      console.log("Performing bulk action:", { action, selectedPosts });
       switch (action) {
         case "publish":
           await supabase
@@ -140,7 +146,7 @@ export const PostsTable = () => {
               post={post}
               onDelete={handleDelete}
               onNavigate={navigate}
-              onStatusChange={handleStatusChange(post.id)}
+              onStatusChange={handleStatusChange}
               selected={selectedPosts.includes(post.id)}
               onSelect={(id, checked) => {
                 setSelectedPosts((prev) =>
