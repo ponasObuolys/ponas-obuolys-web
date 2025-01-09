@@ -13,6 +13,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import AuthPage from "@/pages/auth/AuthPage";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -27,10 +28,38 @@ function App() {
                 <Route index element={<Index />} />
                 <Route path="blog" element={<Blog />} />
                 <Route path="blog/:slug" element={<BlogPost />} />
-                <Route path="editor" element={<Editor />} />
-                <Route path="editor/:id" element={<PostEditor />} />
-                <Route path="admin/*" element={<Admin />} />
-                <Route path="settings" element={<Settings />} />
+                <Route
+                  path="editor"
+                  element={
+                    <ProtectedRoute>
+                      <Editor />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="editor/:id"
+                  element={
+                    <ProtectedRoute>
+                      <PostEditor />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="admin/*"
+                  element={
+                    <ProtectedRoute>
+                      <Admin />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="videos" element={<Videos />} />
               </Route>
               <Route path="/auth" element={<AuthPage />} />

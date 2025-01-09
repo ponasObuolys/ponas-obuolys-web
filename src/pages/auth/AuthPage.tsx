@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { useSession } from "@supabase/auth-helpers-react";
+import { toast } from "@/components/ui/use-toast";
 
 type AuthError = {
   message: string;
@@ -13,10 +15,35 @@ type AuthError = {
 
 export const AuthPage = () => {
   const navigate = useNavigate();
+  const session = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session) {
+      console.log("Session found, redirecting to home");
+      navigate("/");
+    }
+  }, [session, navigate]);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log("Auth state changed:", event);
+        if (event === "SIGNED_IN" && session) {
+          console.log("User signed in, redirecting to home");
+          navigate("/");
+        }
+        if (event === "SIGNED_OUT") {
+          setError(null);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,10 +58,18 @@ export const AuthPage = () => {
 
       if (error) throw error;
 
-      navigate("/");
+      toast({
+        title: "Sėkmingai prisijungėte",
+        description: "Sveiki sugrįžę!",
+      });
     } catch (err) {
       const authError = err as AuthError;
       setError(getErrorMessage(authError));
+      toast({
+        variant: "destructive",
+        title: "Klaida",
+        description: getErrorMessage(authError),
+      });
     } finally {
       setLoading(false);
     }
@@ -99,7 +134,7 @@ export const AuthPage = () => {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700"
+            className="w-full"
           >
             {loading ? <LoadingSpinner /> : "Prisijungti"}
           </Button>
@@ -116,7 +151,7 @@ export const AuthPage = () => {
             <span className="text-muted-foreground">Neturite paskyros?</span>
             <button
               onClick={() => navigate("/auth/register")}
-              className="text-red-600 hover:text-red-700 transition-colors font-medium"
+              className="text-primary hover:text-primary/90 transition-colors font-medium"
             >
               Registruotis
             </button>
