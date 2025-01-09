@@ -12,9 +12,9 @@ const Kontaktai = () => {
           {/* Left Column - Contact Info & Social */}
           <div className="space-y-8">
             <div>
-              <h1 className="text-3xl font-bold mb-4">Susisiekite su mumis</h1>
+              <h1 className="text-3xl font-bold mb-4">Susisiekite su manimi</h1>
               <p className="text-gray-600">
-                Turite klausimų? Susisiekite su mumis žemiau nurodytais kontaktais
+                Turite klausimų? Susisiekite su manim žemiau nurodytais kontaktais
                 arba užpildykite formą.
               </p>
             </div>
@@ -34,7 +34,7 @@ const Kontaktai = () => {
 
           {/* Right Column - Contact Form */}
           <Card className="p-6">
-            <h2 className="text-2xl font-semibold mb-6">Parašykite mums</h2>
+            <h2 className="text-2xl font-semibold mb-6">Parašykite man</h2>
             <ContactForm />
           </Card>
         </div>
