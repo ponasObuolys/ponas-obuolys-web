@@ -1,23 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useSession } from "@supabase/auth-helpers-react";
 import { toast } from "@/components/ui/use-toast";
-
-type AuthError = {
-  message: string;
-};
+import { AuthForm } from "@/components/auth/AuthForm";
+import { AuthLinks } from "@/components/auth/AuthLinks";
+import { getErrorMessage } from "@/utils/auth";
 
 export const AuthPage = () => {
   const navigate = useNavigate();
   const session = useSession();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,8 +43,7 @@ export const AuthPage = () => {
     };
   }, [navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
 
@@ -67,27 +59,15 @@ export const AuthPage = () => {
         title: "Sėkmingai prisijungėte",
         description: "Sveiki sugrįžę!",
       });
-    } catch (err) {
-      const authError = err as AuthError;
-      setError(getErrorMessage(authError));
+    } catch (err: any) {
+      setError(getErrorMessage(err));
       toast({
         variant: "destructive",
         title: "Klaida",
-        description: getErrorMessage(authError),
+        description: getErrorMessage(err),
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getErrorMessage = (error: AuthError) => {
-    switch (error.message) {
-      case "Invalid login credentials":
-        return "Neteisingi prisijungimo duomenys. Patikrinkite el. paštą ir slaptažodį.";
-      case "Email not confirmed":
-        return "Prašome patvirtinti savo el. pašto adresą prieš prisijungiant.";
-      default:
-        return "Įvyko klaida. Bandykite dar kartą vėliau.";
     }
   };
 
@@ -107,61 +87,8 @@ export const AuthPage = () => {
           </Alert>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="email">El. paštas</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="jusu@pastas.lt"
-              required
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Slaptažodis</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Įveskite slaptažodį"
-              required
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? <LoadingSpinner /> : "Prisijungti"}
-          </Button>
-        </form>
-
-        <div className="space-y-4 text-center text-sm">
-          <button
-            onClick={() => navigate("/auth/reset-password")}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Pamiršote slaptažodį?
-          </button>
-          <div className="flex items-center justify-center space-x-1">
-            <span className="text-muted-foreground">Neturite paskyros?</span>
-            <button
-              onClick={() => navigate("/auth/register")}
-              className="text-primary hover:text-primary/90 transition-colors font-medium"
-            >
-              Registruotis
-            </button>
-          </div>
-        </div>
+        <AuthForm onSubmit={handleLogin} isLoading={loading} />
+        <AuthLinks />
       </div>
     </div>
   );
