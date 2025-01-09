@@ -100,7 +100,10 @@ const CourseList = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Kursai</h1>
         <Button 
-          onClick={() => navigate("/admin/kursai/naujas")}
+          onClick={() => {
+            console.log("Navigating to new course form");
+            navigate("/admin/kursai/naujas");
+          }}
           className="shadow-sm bg-primary hover:bg-primary/90"
         >
           <PlusCircle className="h-4 w-4 mr-2" />
