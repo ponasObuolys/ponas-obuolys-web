@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, LogIn } from "lucide-react";
+import { Menu, X, LogOut, LogIn, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Button } from "./ui/button";
 import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "./ui/use-toast";
+import { useTheme } from "./ThemeProvider";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +16,7 @@ const Navigation = () => {
   const supabase = useSupabaseClient();
   const navigate = useNavigate();
   const { role } = useUserRole();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +38,10 @@ const Navigation = () => {
     } else {
       navigate("/");
     }
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   const navLinks = [
@@ -85,6 +91,19 @@ const Navigation = () => {
               </Link>
             ))}
             
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="text-gray-800 dark:text-gray-100 hover:opacity-80"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5 transition-transform duration-300 rotate-0" />
+              ) : (
+                <Moon className="h-5 w-5 transition-transform duration-300 rotate-0" />
+              )}
+            </Button>
+            
             {session ? (
               <Button
                 variant="ghost"
@@ -109,17 +128,31 @@ const Navigation = () => {
           </div>
 
           {/* Mobile Navigation Button */}
-          <button
-            className="md:hidden text-gray-800 dark:text-gray-100"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
+          <div className="md:hidden flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="text-gray-800 dark:text-gray-100 hover:opacity-80"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
+            <button
+              className="text-gray-800 dark:text-gray-100"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
+            >
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation Menu */}
