@@ -4,7 +4,6 @@ import { formatDistanceToNow } from "date-fns";
 import { lt } from 'date-fns/locale';
 import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface YouTubeVideo {
   id: string;
@@ -19,32 +18,19 @@ const PAGE_SIZE = 12;
 const fetchVideos = async ({ pageParam = 0 }) => {
   console.log('Fetching videos from Supabase, page:', pageParam);
   
-  try {
-    const { data, error, count } = await supabase
-      .from('youtube_videos')
-      .select('*', { count: 'exact' })
-      .order('published_at', { ascending: false })
-      .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1);
+  const { data, error, count } = await supabase
+    .from('youtube_videos')
+    .select('*', { count: 'exact' })
+    .order('published_at', { ascending: false })
+    .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1);
 
-    if (error) {
-      console.error('Error fetching videos:', error);
-      throw error;
-    }
+  if (error) throw error;
 
-    if (!data) {
-      throw new Error('No data returned from Supabase');
-    }
-
-    console.log('Fetched videos:', { count, videos: data.length });
-    return {
-      data,
-      nextPage: data.length === PAGE_SIZE ? pageParam + 1 : null,
-      total: count
-    };
-  } catch (error) {
-    console.error('Error in fetchVideos:', error);
-    throw error;
-  }
+  return {
+    data,
+    nextPage: data.length === PAGE_SIZE ? pageParam + 1 : null,
+    total: count
+  };
 };
 
 export const VideoGrid = () => {
@@ -57,22 +43,18 @@ export const VideoGrid = () => {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-    error,
-    refetch
+    error
   } = useInfiniteQuery({
     queryKey: ['youtube-videos'],
     queryFn: fetchVideos,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
-    retry: 2,
-    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          console.log('Loading more videos...');
           fetchNextPage();
         }
       },
@@ -94,7 +76,6 @@ export const VideoGrid = () => {
 
   // Set up realtime subscription for new videos
   useEffect(() => {
-    console.log('Setting up realtime subscription for videos...');
     const channel = supabase
       .channel('youtube-videos-changes')
       .on(
@@ -104,36 +85,17 @@ export const VideoGrid = () => {
           schema: 'public',
           table: 'youtube_videos'
         },
-        (payload) => {
-          console.log('Received realtime update:', payload);
-          refetch();
+        () => {
+          // Invalidate and refetch when videos are updated
+          window.location.reload();
         }
       )
       .subscribe();
 
     return () => {
-      console.log('Cleaning up realtime subscription...');
       supabase.removeChannel(channel);
     };
-  }, [refetch]);
-
-  if (error) {
-    console.error('Error in VideoGrid:', error);
-    toast.error('Nepavyko įkelti video. Pabandykite dar kartą.');
-    return (
-      <div className="text-center p-6">
-        <p className="text-red-500">Nepavyko įkelti video. Pabandykite dar kartą.</p>
-        <button 
-          onClick={() => refetch()}
-          className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
-        >
-          Bandyti dar kartą
-        </button>
-      </div>
-    );
-  }
-
-  const allVideos = data?.pages.flatMap(page => page.data) ?? [];
+  }, []);
 
   if (isLoading) {
     return (
@@ -150,13 +112,15 @@ export const VideoGrid = () => {
     );
   }
 
-  if (allVideos.length === 0) {
+  if (error) {
     return (
       <div className="text-center p-6">
-        <p className="text-gray-500">Nėra įkeltų video.</p>
+        <p className="text-red-500">Nepavyko įkelti video. Pabandykite dar kartą.</p>
       </div>
     );
   }
+
+  const allVideos = data?.pages.flatMap(page => page.data) ?? [];
 
   return (
     <div className="space-y-6">
@@ -169,7 +133,7 @@ export const VideoGrid = () => {
             rel="noopener noreferrer"
             className="transition-transform hover:scale-105"
           >
-            <Card className="overflow-hidden h-full">
+            <Card className="overflow-hidden">
               <img
                 src={video.thumbnail}
                 alt={video.title}
@@ -185,11 +149,9 @@ export const VideoGrid = () => {
                   })}
                 </p>
               </CardHeader>
-              {video.description && (
-                <CardContent>
-                  <p className="text-sm text-gray-600 line-clamp-2">{video.description}</p>
-                </CardContent>
-              )}
+              <CardContent>
+                <p className="text-sm text-gray-600 line-clamp-2">{video.description}</p>
+              </CardContent>
             </Card>
           </a>
         ))}
