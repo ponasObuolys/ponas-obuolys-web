@@ -1,24 +1,52 @@
-import { useSession } from "@supabase/auth-helpers-react";
+import { Youtube, Coffee, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSession } from "@supabase/auth-helpers-react";
 import { Link } from "react-router-dom";
-import { socialLinks, supportLinks } from "@/constants/socialLinks";
+
+interface SupportLink {
+  platform: string;
+  url: string;
+  icon: any;
+  color: string;
+}
+
+const supportLinks: SupportLink[] = [
+  {
+    platform: "YouTube Members",
+    url: "https://www.youtube.com/channel/UCpybqFxdm6CXhctM2n6Gl_Q/join",
+    icon: Youtube,
+    color: "bg-[#FF0000] hover:bg-[#FF0000]/90",
+  },
+  {
+    platform: "Patreon",
+    url: "https://patreon.com/ponasObuolys",
+    icon: MessageSquare,
+    color: "bg-[#FF424D] hover:bg-[#FF424D]/90",
+  },
+  {
+    platform: "Buy Me a Coffee",
+    url: "https://buymeacoffee.com/ponasobuolys",
+    icon: Coffee,
+    color: "bg-[#FFDD00] hover:bg-[#FFDD00]/90 text-black",
+  },
+];
 
 const SocialLinks = () => (
   <div className="space-y-4">
     <h3 className="text-lg font-semibold">Socialiniai tinklai</h3>
     <div className="flex flex-wrap gap-4">
-      {socialLinks.map((link) => (
+      {supportLinks.map((link) => (
         <a
-          key={link.name}
+          key={link.platform}
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`Prisijunkite prie mūsų ${link.name}`}
+          aria-label={`Prisijunkite prie mūsų ${link.platform}`}
         >
           <Button
             variant="default"
             size="icon"
-            className={`${link.color} ${link.hoverColor} text-white`}
+            className={`${link.color} text-white`}
           >
             <link.icon className="h-5 w-5" />
           </Button>
@@ -37,14 +65,14 @@ const SupportSection = () => (
     <div className="flex flex-wrap gap-4">
       {supportLinks.map((link) => (
         <a
-          key={link.name}
+          key={link.platform}
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
         >
           <link.icon className="h-4 w-4" />
-          <span>{link.name}</span>
+          <span>{link.platform}</span>
         </a>
       ))}
     </div>
