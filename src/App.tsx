@@ -18,11 +18,31 @@ import AuthPage from "@/pages/auth/AuthPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
 function App() {
   console.log("App component rendered");
+
+  // Handle system dark mode preference
+  useEffect(() => {
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+
+    const darkModeListener = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleDarkModeChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+
+    darkModeListener.addEventListener('change', handleDarkModeChange);
+    return () => darkModeListener.removeEventListener('change', handleDarkModeChange);
+  }, []);
   
   return (
     <QueryClientProvider client={queryClient}>
