@@ -8,10 +8,16 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 export default function BlogPost() {
   const { slug } = useParams();
 
-  const { data: post, isLoading } = useQuery({
+  const { data: post, isLoading, error } = useQuery({
     queryKey: ["post", slug],
     queryFn: async () => {
       console.log("Fetching blog post with slug:", slug);
+      
+      if (!slug) {
+        console.error("No slug provided");
+        return null;
+      }
+
       const { data, error } = await supabase
         .from("posts")
         .select(
@@ -25,7 +31,7 @@ export default function BlogPost() {
         )
         .eq("slug", slug)
         .eq("status", "published")
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching blog post:", error);
@@ -38,7 +44,7 @@ export default function BlogPost() {
   });
 
   if (isLoading) return <LoadingSpinner />;
-  if (!post) return <NotFound />;
+  if (!post || error) return <NotFound />;
 
   return (
     <ErrorBoundary>
@@ -62,7 +68,7 @@ export default function BlogPost() {
                 className="w-8 h-8 rounded-full"
               />
             )}
-            <span>{post.author.username}</span>
+            <span>{post.author.username || "Unknown Author"}</span>
           </div>
         )}
 
