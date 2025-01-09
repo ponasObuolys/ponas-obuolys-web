@@ -16,6 +16,7 @@ const Admin = () => {
   const { data: stats } = usePostStats();
 
   useEffect(() => {
+    console.log("Admin: Session and role check", { session, role, loading });
     if (!session) {
       navigate("/auth");
     } else if (!loading && role !== "admin") {
@@ -24,7 +25,8 @@ const Admin = () => {
   }, [session, navigate, role, loading]);
 
   const handleNewPost = () => {
-    navigate("/admin/posts/new");
+    console.log("Navigating to editor for new post");
+    navigate("/editor");
   };
 
   if (loading || !session || role !== "admin") {
@@ -35,7 +37,7 @@ const Admin = () => {
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">{lt.admin.title}</h1>
+          <h1 className="text-2xl font-bold">Naujienų valdymas</h1>
           <Button onClick={handleNewPost} className="shadow-sm">
             <PlusCircle className="h-4 w-4 mr-2" />
             {lt.admin.newPost}
