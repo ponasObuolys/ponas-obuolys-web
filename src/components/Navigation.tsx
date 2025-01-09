@@ -52,7 +52,7 @@ const Navigation = () => {
       className={cn(
         "fixed top-0 w-full z-50 transition-all duration-300",
         scrolled
-          ? "bg-white/80 backdrop-blur-md shadow-sm"
+          ? "bg-white/80 backdrop-blur-md shadow-sm dark:bg-gray-900/80"
           : "bg-transparent"
       )}
     >
@@ -60,12 +60,12 @@ const Navigation = () => {
         <div className="flex justify-between h-16 items-center">
           <Link
             to="/"
-            className="flex items-center space-x-3 text-2xl font-bold text-gray-800 hover:text-gray-600 transition-colors"
+            className="flex items-center space-x-3 text-2xl font-bold text-gray-800 dark:text-white hover:opacity-80 transition-opacity"
           >
             <img
               src="/lovable-uploads/0aa80ff9-7a2d-4961-ab31-ff1334112b79.png"
               alt="ponas Obuolys"
-              className="w-10 h-10 rounded-full object-cover border-2 border-gray-100"
+              className="w-10 h-10 rounded-full object-cover border-2 border-gray-100 dark:border-gray-700"
             />
             <span>ponas Obuolys</span>
           </Link>
@@ -77,8 +77,8 @@ const Navigation = () => {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  "text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-md text-sm font-medium",
-                  location.pathname === link.path && "text-gray-900 font-semibold"
+                  "text-gray-800 dark:text-gray-100 hover:opacity-80 transition-opacity px-3 py-2 rounded-md text-sm font-medium",
+                  location.pathname === link.path && "text-primary font-semibold"
                 )}
               >
                 {link.name}
@@ -90,7 +90,7 @@ const Navigation = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="text-gray-600"
+                className="text-gray-800 dark:text-gray-100 hover:opacity-80"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Atsijungti
@@ -100,7 +100,7 @@ const Navigation = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="text-gray-600"
+                className="text-gray-800 dark:text-gray-100 hover:opacity-80"
               >
                 <LogIn className="mr-2 h-4 w-4" />
                 Prisijungti
@@ -110,14 +110,14 @@ const Navigation = () => {
 
           {/* Mobile Navigation Button */}
           <button
-            className="md:hidden"
+            className="md:hidden text-gray-800 dark:text-gray-100"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >
             {isOpen ? (
-              <X className="h-6 w-6 text-gray-600" />
+              <X className="h-6 w-6" />
             ) : (
-              <Menu className="h-6 w-6 text-gray-600" />
+              <Menu className="h-6 w-6" />
             )}
           </button>
         </div>
@@ -125,15 +125,15 @@ const Navigation = () => {
         {/* Mobile Navigation Menu */}
         {isOpen && (
           <div className="md:hidden animate-fadeIn">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-900 rounded-lg shadow-lg">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   className={cn(
-                    "block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors",
+                    "block px-3 py-2 rounded-md text-base font-medium text-gray-800 dark:text-gray-100 hover:opacity-80 transition-opacity",
                     location.pathname === link.path &&
-                      "text-gray-900 bg-gray-50 font-semibold"
+                      "text-primary font-semibold bg-gray-50 dark:bg-gray-800"
                   )}
                   onClick={() => setIsOpen(false)}
                 >
@@ -144,7 +144,7 @@ const Navigation = () => {
               {session ? (
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start text-gray-800 dark:text-gray-100"
                   onClick={() => {
                     handleLogout();
                     setIsOpen(false);
@@ -156,7 +156,7 @@ const Navigation = () => {
               ) : (
                 <Button
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start text-gray-800 dark:text-gray-100"
                   onClick={() => {
                     navigate("/auth");
                     setIsOpen(false);
