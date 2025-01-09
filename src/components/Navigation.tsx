@@ -42,8 +42,8 @@ const Navigation = () => {
     { name: "Pradžia", path: "/" },
     { name: "Vaizdo įrašai", path: "/videos" },
     { name: "Naujienos", path: "/naujienos" },
-    { name: "Kontaktai", path: "/contact" },
-    { name: "Apie", path: "/about" },
+    { name: "Kontaktai", path: "/kontaktai" },
+    { name: "Apie", path: "/apie" },
     ...(role === "admin" ? [{ name: "Admin", path: "/admin" }] : []),
   ];
 

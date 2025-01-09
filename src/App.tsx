@@ -8,6 +8,8 @@ import PostEditor from "@/pages/PostEditor";
 import Admin from "@/pages/Admin";
 import Settings from "@/pages/Settings";
 import Videos from "@/pages/Videos";
+import Kontaktai from "@/pages/Kontaktai";
+import Apie from "@/pages/Apie";
 import { NotFound } from "@/components/NotFound";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -70,6 +72,8 @@ function App() {
                     }
                   />
                   <Route path="videos" element={<Videos />} />
+                  <Route path="kontaktai" element={<Kontaktai />} />
+                  <Route path="apie" element={<Apie />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
