@@ -1,22 +1,16 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, LogIn, Sun, Moon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Button } from "./ui/button";
 import { useUserRole } from "@/hooks/useUserRole";
-import { toast } from "./ui/use-toast";
-import { useTheme } from "./ThemeProvider";
+import { ThemeToggle } from "./navigation/ThemeToggle";
+import { DesktopNav } from "./navigation/DesktopNav";
+import { MobileNav } from "./navigation/MobileNav";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const location = useLocation();
-  const session = useSession();
-  const supabase = useSupabaseClient();
-  const navigate = useNavigate();
   const { role } = useUserRole();
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,26 +21,10 @@ const Navigation = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Klaida",
-        description: "Nepavyko atsijungti. Bandykite dar kartą.",
-      });
-    } else {
-      navigate("/");
-    }
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
   const navLinks = [
     { name: "Pradžia", path: "/" },
     { name: "Vaizdo įrašai", path: "/videos" },
+    { name: "Kursai", path: "/courses" },
     { name: "Naujienos", path: "/naujienos" },
     { name: "Kontaktai", path: "/kontaktai" },
     { name: "Apie", path: "/apie" },
@@ -76,132 +54,25 @@ const Navigation = () => {
             <span>ponas Obuolys</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={cn(
-                  "text-gray-800 dark:text-gray-100 hover:opacity-80 transition-opacity px-3 py-2 rounded-md text-sm font-medium",
-                  location.pathname === link.path && "text-primary font-semibold"
-                )}
-              >
-                {link.name}
-              </Link>
-            ))}
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="text-gray-800 dark:text-gray-100 hover:opacity-80"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-5 w-5 transition-transform duration-300 rotate-0" />
-              ) : (
-                <Moon className="h-5 w-5 transition-transform duration-300 rotate-0" />
-              )}
-            </Button>
-            
-            {session ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-gray-800 dark:text-gray-100 hover:opacity-80"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Atsijungti
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/auth")}
-                className="text-gray-800 dark:text-gray-100 hover:opacity-80"
-              >
-                <LogIn className="mr-2 h-4 w-4" />
-                Prisijungti
-              </Button>
-            )}
-          </div>
+          <DesktopNav navLinks={navLinks} />
 
-          {/* Mobile Navigation Button */}
           <div className="md:hidden flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="text-gray-800 dark:text-gray-100 hover:opacity-80"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </Button>
+            <ThemeToggle />
             <button
               className="text-gray-800 dark:text-gray-100"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
             >
-              {isOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
-        {isOpen && (
-          <div className="md:hidden animate-fadeIn">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-900 rounded-lg shadow-lg">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={cn(
-                    "block px-3 py-2 rounded-md text-base font-medium text-gray-800 dark:text-gray-100 hover:opacity-80 transition-opacity",
-                    location.pathname === link.path &&
-                      "text-primary font-semibold bg-gray-50 dark:bg-gray-800"
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              
-              {session ? (
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-gray-800 dark:text-gray-100"
-                  onClick={() => {
-                    handleLogout();
-                    setIsOpen(false);
-                  }}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Atsijungti
-                </Button>
-              ) : (
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-gray-800 dark:text-gray-100"
-                  onClick={() => {
-                    navigate("/auth");
-                    setIsOpen(false);
-                  }}
-                >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Prisijungti
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
+        <MobileNav
+          isOpen={isOpen}
+          navLinks={navLinks}
+          onClose={() => setIsOpen(false)}
+        />
       </div>
     </nav>
   );
