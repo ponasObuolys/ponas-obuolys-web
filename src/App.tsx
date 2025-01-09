@@ -35,8 +35,8 @@ function App() {
                 {/* All other routes within Root layout */}
                 <Route element={<Root />}>
                   <Route index element={<Index />} />
-                  <Route path="blog" element={<Blog />} />
-                  <Route path="blog/:slug" element={<BlogPost />} />
+                  <Route path="naujienos" element={<Blog />} />
+                  <Route path="naujienos/:slug" element={<BlogPost />} />
                   <Route
                     path="editor"
                     element={
