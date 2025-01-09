@@ -9,6 +9,7 @@ import Editor from "@/pages/Editor";
 import Settings from "@/pages/Settings";
 import Videos from "@/pages/Videos";
 import Auth from "@/pages/Auth";
+import { NotFound } from "@/components/NotFound";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
