@@ -6,6 +6,8 @@ export type Course = Database["public"]["Tables"]["courses"]["Row"] & {
   } | null;
 };
 
+export type CourseContent = Database["public"]["Tables"]["course_content"]["Row"];
+
 export interface CourseFormData {
   title: string;
   description: string;
