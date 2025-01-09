@@ -1,37 +1,9 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { fetchYouTubeVideos, type YouTubeVideo } from "@/services/youtube";
 import { formatDistanceToNow } from "date-fns";
 import { lt } from 'date-fns/locale';
 import { useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
-
-interface YouTubeVideo {
-  id: string;
-  title: string;
-  description: string | null;
-  thumbnail: string;
-  published_at: string;
-}
-
-const PAGE_SIZE = 12;
-
-const fetchVideos = async ({ pageParam = 0 }) => {
-  console.log('Fetching videos from Supabase, page:', pageParam);
-  
-  const { data, error, count } = await supabase
-    .from('youtube_videos')
-    .select('*', { count: 'exact' })
-    .order('published_at', { ascending: false })
-    .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1);
-
-  if (error) throw error;
-
-  return {
-    data,
-    nextPage: data.length === PAGE_SIZE ? pageParam + 1 : null,
-    total: count
-  };
-};
 
 export const VideoGrid = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -46,9 +18,9 @@ export const VideoGrid = () => {
     error
   } = useInfiniteQuery({
     queryKey: ['youtube-videos'],
-    queryFn: fetchVideos,
+    queryFn: ({ pageParam }) => fetchYouTubeVideos(pageParam),
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    initialPageParam: 0,
+    initialPageParam: null,
   });
 
   useEffect(() => {
@@ -73,29 +45,6 @@ export const VideoGrid = () => {
       }
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  // Set up realtime subscription for new videos
-  useEffect(() => {
-    const channel = supabase
-      .channel('youtube-videos-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'youtube_videos'
-        },
-        () => {
-          // Invalidate and refetch when videos are updated
-          window.location.reload();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   if (isLoading) {
     return (
@@ -143,7 +92,7 @@ export const VideoGrid = () => {
               <CardHeader>
                 <CardTitle className="text-lg">{video.title}</CardTitle>
                 <p className="text-sm text-gray-500">
-                  {formatDistanceToNow(new Date(video.published_at), { 
+                  {formatDistanceToNow(new Date(video.publishedAt), { 
                     addSuffix: true,
                     locale: lt 
                   })}
