@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
-import { format } from "date-fns";
-import { lt } from 'date-fns/locale';
+import { NewsCard } from "./NewsCard";
 
 interface Post {
   id: string;
@@ -43,11 +42,7 @@ export function LatestNews() {
         throw error;
       }
 
-      // Transform the data to set default author if none exists
-      return (data as Post[]).map(post => ({
-        ...post,
-        author: post.author?.username ? post.author : { username: "ponas Obuolys" }
-      }));
+      return data as Post[];
     },
   });
 
@@ -75,10 +70,6 @@ export function LatestNews() {
     );
   }
 
-  const formatLithuanianDate = (date: string) => {
-    return format(new Date(date), "yyyy 'm.' MMMM d 'd.'", { locale: lt });
-  };
-
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -86,35 +77,7 @@ export function LatestNews() {
         
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {posts?.map((post) => (
-            <Link key={post.id} to={`/naujienos/${post.slug}`}>
-              <Card className="min-h-[500px] flex flex-col hover:shadow-lg transition-shadow">
-                {post.featured_image && (
-                  <div className="aspect-video">
-                    <img
-                      src={post.featured_image}
-                      alt={post.title}
-                      className="w-full h-full object-cover rounded-t-lg"
-                    />
-                  </div>
-                )}
-                <CardContent className="p-6 flex-grow flex flex-col">
-                  <h3 className="text-xl font-semibold mb-3 line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <div className="flex items-center text-sm text-gray-500 space-x-2 mb-4">
-                    <span>{formatLithuanianDate(post.published_at)}</span>
-                    <span>•</span>
-                    <span>{post.author.username}</span>
-                  </div>
-                  {post.excerpt && (
-                    <p className="text-gray-600 line-clamp-3 mb-6">
-                      {post.excerpt}
-                    </p>
-                  )}
-                  <Button className="mt-auto w-full">Skaityti naujieną</Button>
-                </CardContent>
-              </Card>
-            </Link>
+            <NewsCard key={post.id} {...post} />
           ))}
         </div>
 
