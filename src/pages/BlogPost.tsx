@@ -43,6 +43,19 @@ export default function BlogPost() {
         throw error;
       }
 
+      // Update document head with OpenGraph meta tags
+      if (data) {
+        const metaTags = {
+          title: data.title,
+          image: data.featured_image || '/og-image.png',
+          description: data.excerpt || data.content?.substring(0, 160) || '',
+          url: window.location.href
+        };
+
+        document.title = metaTags.title;
+        updateMetaTags(metaTags);
+      }
+
       return data;
     },
     enabled: !!slug,
@@ -57,9 +70,10 @@ export default function BlogPost() {
 
     const url = window.location.href;
     const title = post.title;
+    const description = post.excerpt || post.content?.substring(0, 160) || '';
 
     const shareUrls = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`,
       twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
     };
@@ -75,6 +89,26 @@ export default function BlogPost() {
       console.error("Failed to copy link:", err);
       toast.error("Nepavyko nukopijuoti nuorodos");
     }
+  };
+
+  const updateMetaTags = (meta: { title: string; image: string; description: string; url: string }) => {
+    const updateMetaTag = (property: string, content: string) => {
+      let element = document.querySelector(`meta[property="${property}"]`);
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute('property', property);
+        document.head.appendChild(element);
+      }
+      element.setAttribute('content', content);
+    };
+
+    updateMetaTag('og:title', meta.title);
+    updateMetaTag('og:image', meta.image);
+    updateMetaTag('og:description', meta.description);
+    updateMetaTag('og:url', meta.url);
+    updateMetaTag('twitter:title', meta.title);
+    updateMetaTag('twitter:image', meta.image);
+    updateMetaTag('twitter:description', meta.description);
   };
 
   if (isLoading) return <LoadingSpinner />;
