@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 interface NewsCardProps {
   id: string;
   title: string;
+  content?: string | null;
   excerpt?: string | null;
   slug: string;
   featured_image?: string | null;
@@ -18,6 +19,7 @@ interface NewsCardProps {
 
 export function NewsCard({ 
   title, 
+  content,
   excerpt, 
   slug, 
   featured_image, 
@@ -27,6 +29,14 @@ export function NewsCard({
   const formatLithuanianDate = (date: string) => {
     return format(new Date(date), "yyyy 'm.' MMMM d 'd.'", { locale: lt });
   };
+
+  const getPreviewText = () => {
+    if (excerpt) return excerpt;
+    if (content) return content.substring(0, 200);
+    return null;
+  };
+
+  const previewText = getPreviewText();
 
   return (
     <Link to={`/naujienos/${slug}`}>
@@ -49,9 +59,9 @@ export function NewsCard({
             <span>•</span>
             <span>{author?.username || "ponas Obuolys"}</span>
           </div>
-          {excerpt && (
+          {previewText && (
             <p className="text-gray-600 line-clamp-3 mb-6">
-              {excerpt}
+              {previewText}
             </p>
           )}
           <Button className="mt-auto w-full">Skaityti naujieną</Button>
