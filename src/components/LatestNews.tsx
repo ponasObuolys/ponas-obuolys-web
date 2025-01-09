@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { format } from "date-fns";
+import { lt } from 'date-fns/locale';
 
 interface Post {
   id: string;
@@ -94,7 +95,7 @@ export function LatestNews() {
                   </h3>
                   <div className="flex items-center text-sm text-gray-500 space-x-2 mb-3">
                     <span>
-                      {format(new Date(post.published_at), "MMMM d, yyyy")}
+                      {format(new Date(post.published_at), "MMMM d, yyyy", { locale: lt })}
                     </span>
                     {post.author?.username && (
                       <>
