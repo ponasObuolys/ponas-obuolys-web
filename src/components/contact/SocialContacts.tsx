@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Facebook, MessageCircle, Phone, Mail, WhatsApp } from "lucide-react";
+import { Facebook, MessageCircle, Phone, Mail, MessageSquare } from "lucide-react";
 
 export const SocialContacts = () => {
   const socials = [
@@ -18,7 +18,7 @@ export const SocialContacts = () => {
     {
       name: "WhatsApp",
       url: "https://wa.me/37067168860",
-      icon: <WhatsApp className="h-5 w-5" />,
+      icon: <MessageSquare className="h-5 w-5" />,
       color: "bg-[#25D366] hover:bg-[#25D366]/90",
     },
   ];
