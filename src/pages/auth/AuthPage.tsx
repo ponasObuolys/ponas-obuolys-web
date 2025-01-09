@@ -22,6 +22,8 @@ export const AuthPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("AuthPage: Session state changed", { hasSession: !!session });
+    
     if (session) {
       console.log("Session found, redirecting to home");
       navigate("/");
@@ -42,7 +44,10 @@ export const AuthPage = () => {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("Cleaning up auth state change listener");
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
