@@ -1,11 +1,7 @@
 import { Outlet } from "react-router-dom";
 
 const Root = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 };
 
 export default Root;
