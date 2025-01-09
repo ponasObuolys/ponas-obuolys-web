@@ -80,9 +80,8 @@ export const VideoGrid = () => {
             href={`https://youtube.com/watch?v=${video.id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-transform hover:scale-105"
           >
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
               <img
                 src={video.thumbnail}
                 alt={video.title}

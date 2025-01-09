@@ -85,7 +85,7 @@ export function LatestNews() {
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {posts?.map((post) => (
             <Link key={post.id} to={`/naujienos/${post.slug}`}>
-              <Card className="min-h-[500px] flex flex-col hover:shadow-lg transition-shadow bg-white/50 dark:bg-gray-800/50">
+              <Card className="min-h-[500px] flex flex-col transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/50 dark:bg-gray-800/50">
                 {post.featured_image && (
                   <div className="aspect-video">
                     <img

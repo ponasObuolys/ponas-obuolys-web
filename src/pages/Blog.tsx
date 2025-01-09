@@ -67,7 +67,7 @@ const Blog = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {posts?.map((post) => (
             <Link key={post.id} to={`/naujienos/${post.slug}`}>
-              <Card className="h-full hover:shadow-lg transition-shadow">
+              <Card className="h-full transition-all duration-300 hover:scale-105 hover:shadow-lg">
                 {post.featured_image && (
                   <div className="aspect-video">
                     <img
