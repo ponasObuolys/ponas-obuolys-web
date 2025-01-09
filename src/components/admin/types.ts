@@ -5,6 +5,7 @@ export type PostStatus = Database["public"]["Enums"]["post_status"];
 export type Post = {
   id: string;
   title: string;
+  slug: string;  // Added this field
   status: PostStatus;
   created_at: string;
   published_at: string | null;
