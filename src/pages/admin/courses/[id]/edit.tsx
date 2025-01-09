@@ -60,6 +60,9 @@ export default function EditCoursePage() {
         price: data.price,
         currency: data.currency,
         thumbnail: thumbnailUrl,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        status: data.status
       })
       .eq("id", id);
 
@@ -77,6 +80,9 @@ export default function EditCoursePage() {
     thumbnail: course?.thumbnail || "",
     categories: course?.course_categories?.map(cc => cc.categories.id) || [],
     tags: course?.course_tags?.map(ct => ct.tags.id) || [],
+    start_date: course?.start_date ? new Date(course.start_date) : new Date(),
+    end_date: course?.end_date ? new Date(course.end_date) : new Date(),
+    status: course?.status || "upcoming"
   };
 
   return (
