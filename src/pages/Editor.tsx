@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { PostFormData } from "@/types/post";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { slugify } from "@/utils/slugify";
 
 const Editor = () => {
   const { id } = useParams();
@@ -12,6 +13,13 @@ const Editor = () => {
 
   const handleSave = async (data: PostFormData, newImage: File | null) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('Turite būti prisijungęs');
+        return;
+      }
+
       let imageUrl = data.featuredImage;
       
       if (newImage) {
@@ -31,14 +39,18 @@ const Editor = () => {
         imageUrl = publicUrl;
       }
 
+      const slug = slugify(data.title);
+
       const postData = {
         title: data.title,
+        slug,
         content: data.content,
         excerpt: data.excerpt,
         status: data.status,
         meta_title: data.metaTitle,
         meta_description: data.metaDescription,
         featured_image: imageUrl,
+        author_id: user.id
       };
 
       const { error } = await supabase
