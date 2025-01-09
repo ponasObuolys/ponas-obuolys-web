@@ -1,4 +1,3 @@
-// Hero.tsx
 const Hero = () => {
   return (
     <div className="relative min-h-[25vh] flex items-center justify-center">
@@ -17,4 +16,6 @@ const Hero = () => {
       </div>
     </div>
   );
- };
+};
+
+export default Hero;
