@@ -66,8 +66,7 @@ const Editor = () => {
         meta_title: data.metaTitle,
         meta_description: data.metaDescription,
         featured_image: imageUrl,
-        author_id: user.id,
-        author: 'ponas Obuolys' // Set default author
+        author_id: user.id
       };
 
       const { error } = await supabase

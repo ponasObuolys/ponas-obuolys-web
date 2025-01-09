@@ -12,6 +12,14 @@ export interface PostFormData {
   featuredImage: string;
 }
 
+export interface PostFormProps {
+  defaultValues?: PostFormData;
+  onSubmit: (data: PostFormData, newImage: File | null) => Promise<void>;
+  onCancel: () => void;
+  onPreview?: (data: PostFormData) => Promise<void>;
+  isPreviewLoading?: boolean;
+}
+
 export const mapDatabaseToFormData = (dbData: Database["public"]["Tables"]["posts"]["Row"]): PostFormData => {
   return {
     title: dbData.title,
