@@ -36,17 +36,19 @@ export default function NewCoursePage() {
         thumbnailUrl = publicUrl;
       }
 
-      const { error } = await supabase.from("courses").insert({
-        title: data.title,
-        description: data.description,
-        price: data.price,
-        currency: data.currency,
-        thumbnail: thumbnailUrl,
-        author_id: session.user.id,
-        start_date: data.start_date,
-        end_date: data.end_date,
-        status: data.status
-      });
+      const { error } = await supabase
+        .from("courses")
+        .insert({
+          title: data.title,
+          description: data.description,
+          price: data.price,
+          currency: data.currency,
+          thumbnail: thumbnailUrl,
+          author_id: session.user.id,
+          start_date: data.start_date.toISOString(),
+          end_date: data.end_date.toISOString(),
+          status: data.status
+        });
 
       if (error) throw error;
       
