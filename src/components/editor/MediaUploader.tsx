@@ -19,19 +19,30 @@ const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
       setUploading(true);
 
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error("You must select an image to upload.");
+        throw new Error("Turite pasirinkti paveikslėlį.");
       }
 
       const file = event.target.files[0];
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error("Galima įkelti tik paveikslėlius.");
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error("Paveikslėlis negali būti didesnis nei 5MB.");
+      }
+
       await onUpload(file);
       
       // Reset the input value to allow selecting the same file again
       event.target.value = '';
       
-      toast.success("Image selected successfully");
+      toast.success("Paveikslėlis pasirinktas");
     } catch (error) {
       console.error("Error selecting image:", error);
-      toast.error("Error selecting image");
+      toast.error(error.message || "Nepavyko pasirinkti paveikslėlio");
     } finally {
       setUploading(false);
     }
@@ -56,7 +67,7 @@ const MediaUploader = ({ onUpload, disabled }: MediaUploaderProps) => {
         ) : (
           <ImagePlus className="h-4 w-4 mr-2" />
         )}
-        Upload Image
+        Įkelti paveikslėlį
       </Button>
       <input
         type="file"

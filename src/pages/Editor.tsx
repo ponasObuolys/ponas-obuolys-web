@@ -1,7 +1,8 @@
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSession } from "@supabase/auth-helpers-react";
 import Navigation from "@/components/Navigation";
 import PostForm from "@/components/editor/PostForm";
-import { useNavigate } from "react-router-dom";
 import { PostFormData } from "@/types/post";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -10,6 +11,8 @@ import { slugify } from "@/utils/slugify";
 const Editor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const session = useSession();
 
   const handleSave = async (data: PostFormData, newImage: File | null) => {
     try {
@@ -23,20 +26,33 @@ const Editor = () => {
       let imageUrl = data.featuredImage;
       
       if (newImage) {
-        const fileExt = newImage.name.split('.').pop();
-        const filePath = `${crypto.randomUUID()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('blog-media')
-          .upload(filePath, newImage);
+        try {
+          const fileExt = newImage.name.split('.').pop();
+          const filePath = `${crypto.randomUUID()}.${fileExt}`;
           
-        if (uploadError) throw uploadError;
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from('blog-media')
-          .getPublicUrl(filePath);
+          const { error: uploadError } = await supabase.storage
+            .from('blog-media')
+            .upload(filePath, newImage, {
+              cacheControl: '3600',
+              upsert: false
+            });
+            
+          if (uploadError) {
+            console.error('Error uploading image:', uploadError);
+            toast.error('Nepavyko įkelti paveikslėlio');
+            return;
+          }
           
-        imageUrl = publicUrl;
+          const { data: { publicUrl } } = supabase.storage
+            .from('blog-media')
+            .getPublicUrl(filePath);
+            
+          imageUrl = publicUrl;
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          toast.error('Nepavyko įkelti paveikslėlio');
+          return;
+        }
       }
 
       const slug = slugify(data.title);
@@ -50,20 +66,38 @@ const Editor = () => {
         meta_title: data.metaTitle,
         meta_description: data.metaDescription,
         featured_image: imageUrl,
-        author_id: user.id
+        author_id: user.id,
+        author: 'ponas Obuolys' // Set default author
       };
 
       const { error } = await supabase
         .from("posts")
         .insert(postData);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving post:', error);
+        toast.error('Nepavyko išsaugoti naujienos');
+        return;
+      }
 
       toast.success("Naujiena išsaugota");
       navigate("/admin");
     } catch (err) {
       console.error('Save failed:', err);
       toast.error('Nepavyko išsaugoti naujienos');
+    }
+  };
+
+  const handlePreview = async (data: PostFormData) => {
+    try {
+      setIsPreviewLoading(true);
+      const slug = slugify(data.title);
+      navigate(`/naujienos/${slug}`);
+    } catch (err) {
+      console.error('Preview failed:', err);
+      toast.error('Nepavyko atidaryti peržiūros');
+    } finally {
+      setIsPreviewLoading(false);
     }
   };
 
@@ -77,6 +111,8 @@ const Editor = () => {
         <PostForm
           onSubmit={handleSave}
           onCancel={() => navigate("/admin")}
+          onPreview={handlePreview}
+          isPreviewLoading={isPreviewLoading}
         />
       </div>
     </div>
