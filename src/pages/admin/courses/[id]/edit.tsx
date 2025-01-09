@@ -15,7 +15,15 @@ export default function EditCoursePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("courses")
-        .select("*")
+        .select(`
+          *,
+          course_categories!inner(
+            categories(*)
+          ),
+          course_tags!inner(
+            tags(*)
+          )
+        `)
         .eq("id", id)
         .single();
 
@@ -60,6 +68,17 @@ export default function EditCoursePage() {
 
   if (isLoading) return null;
 
+  // Transform database course to form data
+  const formData: CourseFormData = {
+    title: course?.title || "",
+    description: course?.description || "",
+    price: course?.price || 0,
+    currency: course?.currency || "EUR",
+    thumbnail: course?.thumbnail || "",
+    categories: course?.course_categories?.map(cc => cc.categories.id) || [],
+    tags: course?.course_tags?.map(ct => ct.tags.id) || [],
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-4xl mx-auto space-y-8">
@@ -67,7 +86,7 @@ export default function EditCoursePage() {
         
         <div className="bg-white p-6 rounded-lg shadow">
           <CourseForm
-            defaultValues={course as CourseFormData}
+            defaultValues={formData}
             onSubmit={handleSubmit}
             onCancel={() => navigate("/admin/courses")}
           />

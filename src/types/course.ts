@@ -1,7 +1,10 @@
 import { Database } from "@/integrations/supabase/types";
 
-export type Course = Database["public"]["Tables"]["courses"]["Row"];
-export type CourseContent = Database["public"]["Tables"]["course_content"]["Row"];
+export type Course = Database["public"]["Tables"]["courses"]["Row"] & {
+  profiles?: {
+    username: string | null;
+  } | null;
+};
 
 export interface CourseFormData {
   title: string;
