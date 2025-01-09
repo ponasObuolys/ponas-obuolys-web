@@ -33,7 +33,7 @@ const supportLinks: SupportLink[] = [
 
 const SocialLinks = () => (
   <div className="space-y-4">
-    <h3 className="text-lg font-semibold">Socialiniai tinklai</h3>
+    <h3 className="text-lg font-semibold">Bendravimo kanalai</h3>
     <div className="flex flex-wrap gap-4">
       {supportLinks.map((link) => (
         <a
