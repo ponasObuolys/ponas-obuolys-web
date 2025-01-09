@@ -60,8 +60,8 @@ export default function EditCoursePage() {
         price: data.price,
         currency: data.currency,
         thumbnail: thumbnailUrl,
-        start_date: data.start_date,
-        end_date: data.end_date,
+        start_date: data.start_date.toISOString(),
+        end_date: data.end_date.toISOString(),
         status: data.status
       })
       .eq("id", id);
