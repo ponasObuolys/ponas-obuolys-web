@@ -19,7 +19,7 @@ export const useUserRole = () => {
       }
 
       try {
-        const { data, error } = await supabase
+        const { data: roles, error } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id);
@@ -27,9 +27,9 @@ export const useUserRole = () => {
         if (error) {
           console.error("Error fetching user roles:", error);
           setRole(null);
-        } else if (data && data.length > 0) {
+        } else if (roles && roles.length > 0) {
           // If user has admin role in any of their roles, consider them admin
-          const hasAdminRole = data.some(r => r.role === "admin");
+          const hasAdminRole = roles.some(r => r.role === "admin");
           setRole(hasAdminRole ? "admin" : "user");
         } else {
           setRole(null);
