@@ -29,11 +29,6 @@ const Admin = () => {
     navigate("/editor");
   };
 
-  const handleNewCourse = () => {
-    console.log("Navigating to new course form");
-    navigate("/admin/kursai/naujas");
-  };
-
   if (loading || !session || role !== "admin") {
     return null;
   }
@@ -43,16 +38,10 @@ const Admin = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Naujienų valdymas</h1>
-          <div className="space-x-4">
-            <Button onClick={handleNewPost} className="shadow-sm">
-              <PlusCircle className="h-4 w-4 mr-2" />
-              {lt.admin.newPost}
-            </Button>
-            <Button onClick={handleNewCourse} className="shadow-sm bg-primary hover:bg-primary/90">
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Pridėti naują kursą
-            </Button>
-          </div>
+          <Button onClick={handleNewPost} className="shadow-sm">
+            <PlusCircle className="h-4 w-4 mr-2" />
+            {lt.admin.newPost}
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
