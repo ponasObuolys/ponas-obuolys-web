@@ -22,8 +22,7 @@ export const useUserRole = () => {
         const { data, error } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", session.user.id)
-          .order("created_at", { ascending: false });
+          .eq("user_id", session.user.id);
 
         if (error) {
           console.error("Error fetching user roles:", error);
