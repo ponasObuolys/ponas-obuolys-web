@@ -23,15 +23,15 @@ export const useUserRole = () => {
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
-          .order("created_at", { ascending: false })
-          .limit(1);
+          .order("created_at", { ascending: false });
 
         if (error) {
-          console.error("Error fetching user role:", error);
+          console.error("Error fetching user roles:", error);
           setRole(null);
         } else if (data && data.length > 0) {
-          // Take the most recently created role
-          setRole(data[0].role);
+          // If user has admin role in any of their roles, consider them admin
+          const hasAdminRole = data.some(r => r.role === "admin");
+          setRole(hasAdminRole ? "admin" : "user");
         } else {
           setRole(null);
         }

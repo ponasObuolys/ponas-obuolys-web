@@ -32,19 +32,21 @@ export const ProtectedRoute = ({ children, requireAdmin = true }: ProtectedRoute
         const { data: roles, error } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", session.user.id)
-          .single();
+          .eq("user_id", session.user.id);
 
         if (error) {
-          console.error("Error checking user role:", error);
+          console.error("Error checking user roles:", error);
           toast.error("Klaida tikrinant prieigos teises");
           navigate("/", { replace: true });
           return;
         }
 
-        console.log("ProtectedRoute: User role:", roles?.role);
+        console.log("ProtectedRoute: User roles:", roles);
         
-        if (roles?.role !== "admin") {
+        // Check if user has admin role in any of their roles
+        const isAdmin = roles?.some(role => role.role === "admin");
+        
+        if (!isAdmin) {
           console.log("ProtectedRoute: User is not admin, redirecting to home");
           toast.error("Neturite prieigos teisių");
           navigate("/", { replace: true });
