@@ -11,7 +11,6 @@ import Contact from "@/pages/Kontaktai";
 import About from "@/pages/Apie";
 import Admin from "@/pages/Admin";
 import AuthPage from "@/pages/auth/AuthPage";
-import RegisterPage from "@/pages/auth/Register";
 import { supabase } from "./integrations/supabase/client";
 
 const queryClient = new QueryClient();
@@ -33,7 +32,6 @@ function App() {
                   <Route path="/apie" element={<About />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/auth/register" element={<RegisterPage />} />
                 </Routes>
               </main>
             </div>
