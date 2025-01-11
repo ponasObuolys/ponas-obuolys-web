@@ -38,10 +38,10 @@ export function LatestTools() {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8">Naujausi įrankiai</h2>
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
             {[1, 2, 3].map((n) => (
-              <Card key={n} className="animate-pulse min-h-[400px] bg-white/50 dark:bg-gray-800/50">
-                <div className="h-48 bg-gray-200 dark:bg-gray-700" />
+              <Card key={n} className="animate-pulse min-h-[480px] bg-white/50 dark:bg-gray-800/50">
+                <div className="h-[200px] bg-gray-200 dark:bg-gray-700" />
                 <CardContent className="p-6 space-y-4">
                   <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
                   <div className="space-y-2">
@@ -62,15 +62,16 @@ export function LatestTools() {
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-3xl font-bold mb-8">Naujausi įrankiai</h2>
         
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
           {tools?.map((tool) => (
             <Link key={tool.id} to={`/irankiai/${tool.slug}`}>
-              <Card className="min-h-[400px] flex flex-col transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/50 dark:bg-gray-800/50">
-                <div className="aspect-video">
+              <Card className="h-full flex flex-col transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/50 dark:bg-gray-800/50">
+                <div className="relative h-[200px] w-full overflow-hidden">
                   <img
                     src={tool.thumbnail}
                     alt={tool.name}
                     className="w-full h-full object-cover rounded-t-lg"
+                    loading="lazy"
                   />
                 </div>
                 <CardContent className="p-6 flex-grow flex flex-col">
