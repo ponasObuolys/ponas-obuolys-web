@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AiTool, AiToolsFilters } from "@/types/ai-tools";
+import debounce from "lodash/debounce";
 
 export const useAiTools = (filters: AiToolsFilters) => {
   return useQuery({
@@ -15,25 +16,12 @@ export const useAiTools = (filters: AiToolsFilters) => {
         `);
 
       if (filters.search) {
-        // Format search terms for tsquery
-        const searchTerms = filters.search
-          .trim()
-          .split(/\s+/)
-          .map(term => term + ':*')
-          .join(' & ');
+        const searchTerm = filters.search.toLowerCase().trim();
         
-        console.log("Formatted search terms:", searchTerms);
+        // Use ilike for case-insensitive partial matching
+        query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
         
-        try {
-          query = query.textSearch('search_vector', searchTerms, {
-            type: 'plain',
-            config: 'lithuanian'
-          });
-        } catch (error) {
-          console.error("Error formatting search query:", error);
-          // If search query fails, return all results instead of throwing
-          console.log("Falling back to unfiltered results");
-        }
+        console.log("Searching with term:", searchTerm);
       }
 
       if (filters.pricing !== "all") {

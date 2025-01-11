@@ -8,6 +8,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { AiToolsFilters as AiToolsFiltersType } from "@/types/ai-tools";
+import { useCallback } from "react";
+import debounce from "lodash/debounce";
 
 interface AiToolsFiltersProps {
   filters: AiToolsFiltersType;
@@ -18,14 +20,22 @@ export const AiToolsFilters = ({
   filters,
   onFiltersChange,
 }: AiToolsFiltersProps) => {
+  // Debounce the search input with 300ms delay
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      onFiltersChange({ search: value });
+    }, 300),
+    [onFiltersChange]
+  );
+
   return (
     <div className="flex items-center gap-4">
       <div className="relative flex-1">
         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Ieškoti įrankių..."
-          value={filters.search}
-          onChange={(e) => onFiltersChange({ search: e.target.value })}
+          defaultValue={filters.search}
+          onChange={(e) => debouncedSearch(e.target.value)}
           className="pl-8"
         />
       </div>
