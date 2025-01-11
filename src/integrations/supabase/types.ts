@@ -74,6 +74,163 @@ export type Database = {
           },
         ]
       }
+      course_categories: {
+        Row: {
+          category_id: string
+          course_id: string
+        }
+        Insert: {
+          category_id: string
+          course_id: string
+        }
+        Update: {
+          category_id?: string
+          course_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_categories_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_content: {
+        Row: {
+          content_type: string
+          course_id: string
+          created_at: string
+          file_path: string
+          id: string
+          order_index: number
+          size: number
+          title: string
+        }
+        Insert: {
+          content_type: string
+          course_id: string
+          created_at?: string
+          file_path: string
+          id?: string
+          order_index?: number
+          size: number
+          title: string
+        }
+        Update: {
+          content_type?: string
+          course_id?: string
+          created_at?: string
+          file_path?: string
+          id?: string
+          order_index?: number
+          size?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_content_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_tags: {
+        Row: {
+          course_id: string
+          tag_id: string
+        }
+        Insert: {
+          course_id: string
+          tag_id: string
+        }
+        Update: {
+          course_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_tags_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          author_id: string
+          created_at: string
+          currency: Database["public"]["Enums"]["currency_type"]
+          description: string
+          end_date: string
+          id: string
+          price: number
+          search_vector: unknown | null
+          start_date: string
+          status: Database["public"]["Enums"]["course_status"]
+          thumbnail: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_type"]
+          description: string
+          end_date?: string
+          id?: string
+          price: number
+          search_vector?: unknown | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["course_status"]
+          thumbnail: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_type"]
+          description?: string
+          end_date?: string
+          id?: string
+          price?: number
+          search_vector?: unknown | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["course_status"]
+          thumbnail?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_categories: {
         Row: {
           category_id: string
@@ -347,6 +504,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      course_status: "upcoming" | "active" | "completed" | "draft"
+      currency_type: "USD" | "EUR" | "LTL"
       post_status: "draft" | "published" | "scheduled"
     }
     CompositeTypes: {
