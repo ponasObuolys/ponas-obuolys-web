@@ -21,7 +21,7 @@ export function LatestVideos() {
   const { data: videos, isLoading } = useQuery({
     queryKey: ["latest-cached-videos"],
     queryFn: async () => {
-      console.log("Fetching latest cached videos");
+      console.log("LatestVideos: Fetching latest cached videos");
       const { data, error } = await supabase
         .from("cached_youtube_videos")
         .select("*")
@@ -29,15 +29,17 @@ export function LatestVideos() {
         .limit(3);
 
       if (error) {
-        console.error("Error fetching cached videos:", error);
+        console.error("LatestVideos: Error fetching cached videos:", error);
         throw error;
       }
 
+      console.log(`LatestVideos: Found ${data?.length || 0} videos`);
       return data as CachedVideo[];
     },
   });
 
   if (isLoading) {
+    console.log("LatestVideos: Loading state");
     return (
       <section className="py-12">
         <div className="container mx-auto px-4">

@@ -28,7 +28,7 @@ export function VideoGrid() {
   } = useInfiniteQuery({
     queryKey: ["cached-videos"],
     queryFn: async ({ pageParam = 0 }) => {
-      console.log("Fetching cached videos page:", pageParam);
+      console.log("VideoGrid: Fetching cached videos page:", pageParam);
       const start = pageParam * VIDEOS_PER_PAGE;
       const end = start + VIDEOS_PER_PAGE - 1;
 
@@ -39,10 +39,11 @@ export function VideoGrid() {
         .range(start, end);
 
       if (error) {
-        console.error("Error fetching cached videos:", error);
+        console.error("VideoGrid: Error fetching cached videos:", error);
         throw error;
       }
 
+      console.log(`VideoGrid: Found ${videos?.length || 0} videos for page ${pageParam}`);
       return {
         videos,
         nextPage: videos.length === VIDEOS_PER_PAGE ? pageParam + 1 : undefined,
@@ -53,6 +54,7 @@ export function VideoGrid() {
   });
 
   if (isLoading) {
+    console.log("VideoGrid: Loading state");
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(6)].map((_, i) => (

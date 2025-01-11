@@ -33,7 +33,12 @@ serve(async (req) => {
       throw new Error('Required environment variables are not set')
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    })
     
     console.log('Checking cache for videos...')
     
