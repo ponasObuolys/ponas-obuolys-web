@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
+import { lt } from "date-fns/locale";
 import { Link } from "react-router-dom";
 
 interface Post {
@@ -45,6 +46,10 @@ const Blog = () => {
     },
   });
 
+  const formatLithuanianDate = (date: string) => {
+    return format(new Date(date), "yyyy 'm.' MMMM d 'd.'", { locale: lt });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <h1 className="text-4xl font-bold text-gray-900 mb-8">Naujienos</h1>
@@ -81,7 +86,7 @@ const Blog = () => {
                   <CardTitle className="line-clamp-2">{post.title}</CardTitle>
                   <div className="flex items-center text-sm text-gray-500 space-x-2">
                     <span>
-                      {format(new Date(post.published_at), "MMMM d, yyyy")}
+                      {formatLithuanianDate(post.published_at)}
                     </span>
                     {post.author?.username && (
                       <>
