@@ -245,4 +245,4 @@ export function AiToolForm({ onSuccess }: AiToolFormProps) {
       </form>
     </Form>
   );
-});
+}
