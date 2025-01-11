@@ -25,6 +25,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import MediaUploader from "@/components/editor/MediaUploader";
 import { slugify } from "@/utils/slugify";
+import type { Database } from "@/integrations/supabase/types";
+
+type AiTool = Database["public"]["Tables"]["ai_tools"]["Insert"];
 
 const formSchema = z.object({
   name: z.string().min(2, "Pavadinimas turi būti bent 2 simbolių ilgio"),
@@ -58,12 +61,19 @@ export function AiToolForm({ onSuccess }: AiToolFormProps) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
-      const slug = slugify(values.name);
+      
+      const toolData: AiTool = {
+        name: values.name,
+        description: values.description,
+        pricing_model: values.pricing_model,
+        thumbnail: values.thumbnail,
+        affiliate_link: values.affiliate_link || null,
+        is_recommended: values.is_recommended,
+        special_offer: values.special_offer || null,
+        slug: slugify(values.name),
+      };
 
-      const { error } = await supabase.from("ai_tools").insert({
-        ...values,
-        slug,
-      });
+      const { error } = await supabase.from("ai_tools").insert(toolData);
 
       if (error) throw error;
 
@@ -235,4 +245,4 @@ export function AiToolForm({ onSuccess }: AiToolFormProps) {
       </form>
     </Form>
   );
-}
+});
