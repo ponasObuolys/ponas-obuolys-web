@@ -5,11 +5,11 @@ import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import Navigation from "@/components/Navigation";
-import Home from "@/pages/Home";
+import Index from "@/pages/Index";
 import Videos from "@/pages/Videos";
 import News from "@/pages/News";
-import Contact from "@/pages/Contact";
-import About from "@/pages/About";
+import Contact from "@/pages/Kontaktai";
+import About from "@/pages/Apie";
 import Admin from "@/pages/Admin";
 import AuthPage from "@/pages/auth/AuthPage";
 import RegisterPage from "@/pages/auth/Register";
@@ -27,7 +27,7 @@ function App() {
               <Navigation />
               <main className="container mx-auto px-4 pt-20 pb-8">
                 <Routes>
-                  <Route path="/" element={<Home />} />
+                  <Route path="/" element={<Index />} />
                   <Route path="/videos" element={<Videos />} />
                   <Route path="/naujienos" element={<News />} />
                   <Route path="/kontaktai" element={<Contact />} />
