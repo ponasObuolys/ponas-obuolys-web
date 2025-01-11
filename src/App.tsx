@@ -1,13 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createClient } from "@supabase/supabase-js";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import Navigation from "@/components/Navigation";
 import Index from "@/pages/Index";
 import Videos from "@/pages/Videos";
-import News from "@/pages/News";
+import Blog from "@/pages/Blog";
 import Contact from "@/pages/Kontaktai";
 import About from "@/pages/Apie";
 import Admin from "@/pages/Admin";
@@ -29,7 +28,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/videos" element={<Videos />} />
-                  <Route path="/naujienos" element={<News />} />
+                  <Route path="/naujienos" element={<Blog />} />
                   <Route path="/kontaktai" element={<Contact />} />
                   <Route path="/apie" element={<About />} />
                   <Route path="/admin" element={<Admin />} />
