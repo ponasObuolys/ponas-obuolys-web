@@ -1,79 +1,106 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import Root from "@/components/Root";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Root } from "@/components/Root";
 import Index from "@/pages/Index";
-import Auth from "@/pages/Auth";
+import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
+import Editor from "@/pages/Editor";
+import PostEditor from "@/pages/PostEditor";
 import Admin from "@/pages/Admin";
-import NewCourse from "@/pages/admin/courses/new";
-import CourseList from "@/components/admin/courses/CourseList";
-import KursaiLayout from "@/components/courses/KursaiLayout";
-import KursaiPage from "@/pages/Kursai";
+import Settings from "@/pages/Settings";
+import Videos from "@/pages/Videos";
+import Kontaktai from "@/pages/Kontaktai";
+import Apie from "@/pages/Apie";
+import { NotFound } from "@/components/NotFound";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import AuthPage from "@/pages/auth/AuthPage";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Root />,
-    children: [
-      {
-        index: true,
-        element: <Index />,
-      },
-      {
-        path: "auth",
-        element: <Auth />,
-      },
-      {
-        path: "kursai",
-        element: <KursaiLayout />,
-        errorElement: <div className="container mx-auto py-8"><ErrorBoundary>Kažkas nepavyko. Bandykite dar kartą vėliau.</ErrorBoundary></div>,
-        children: [
-          {
-            index: true,
-            element: <KursaiPage />,
-          },
-        ],
-      },
-      {
-        path: "admin",
-        element: (
-          <ProtectedRoute>
-            <Admin />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "admin/kursai",
-        element: (
-          <ProtectedRoute>
-            <CourseList />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "admin/kursai/naujas",
-        element: (
-          <ProtectedRoute>
-            <NewCourse />
-          </ProtectedRoute>
-        ),
-      },
-    ],
-  },
-]);
-
 function App() {
+  console.log("App component rendered");
+
+  // Handle system dark mode preference
+  useEffect(() => {
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+
+    const darkModeListener = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleDarkModeChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+
+    darkModeListener.addEventListener('change', handleDarkModeChange);
+    return () => darkModeListener.removeEventListener('change', handleDarkModeChange);
+  }, []);
+  
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <RouterProvider router={router} />
-        <Toaster />
-      </ThemeProvider>
+      <SessionContextProvider supabaseClient={supabase}>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <BrowserRouter>
+              <Routes>
+                {/* Auth routes outside of Root layout */}
+                <Route path="/auth" element={<AuthPage />} />
+                
+                {/* All other routes within Root layout */}
+                <Route element={<Root />}>
+                  <Route index element={<Index />} />
+                  <Route path="naujienos" element={<Blog />} />
+                  <Route path="naujienos/:slug" element={<BlogPost />} />
+                  <Route
+                    path="editor"
+                    element={
+                      <ProtectedRoute>
+                        <Editor />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="editor/:id"
+                    element={
+                      <ProtectedRoute>
+                        <PostEditor />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="admin/*"
+                    element={
+                      <ProtectedRoute>
+                        <Admin />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="settings"
+                    element={
+                      <ProtectedRoute>
+                        <Settings />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="videos" element={<Videos />} />
+                  <Route path="kontaktai" element={<Kontaktai />} />
+                  <Route path="apie" element={<Apie />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </SessionContextProvider>
     </QueryClientProvider>
   );
 }
