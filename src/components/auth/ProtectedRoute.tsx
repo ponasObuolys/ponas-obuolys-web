@@ -1,28 +1,68 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSession } from "@supabase/auth-helpers-react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { toast } from "sonner";
+import { Database } from "@/integrations/supabase/types";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requireAdmin?: boolean;
 }
 
-export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, requireAdmin = true }: ProtectedRouteProps) => {
   const session = useSession();
   const navigate = useNavigate();
+  const supabase = useSupabaseClient<Database>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
 
   useEffect(() => {
-    console.log("ProtectedRoute: Session state changed", { hasSession: !!session });
-    
-    if (session === null) {
-      console.log("No session found, redirecting to auth page");
-      navigate("/auth", { replace: true });
-    }
-  }, [session, navigate]);
+    const checkAccess = async () => {
+      console.log("ProtectedRoute: Checking access...");
+      
+      if (!session?.user) {
+        console.log("ProtectedRoute: No session found, redirecting to auth");
+        navigate("/auth", { replace: true });
+        return;
+      }
 
-  // Show loading spinner while session is being checked
-  if (session === undefined) {
-    console.log("ProtectedRoute: Loading session state");
+      if (requireAdmin) {
+        console.log("ProtectedRoute: Checking admin role...");
+        const { data: roles, error } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id);
+
+        if (error) {
+          console.error("Error checking user roles:", error);
+          toast.error("Klaida tikrinant prieigos teises");
+          navigate("/", { replace: true });
+          return;
+        }
+
+        console.log("ProtectedRoute: User roles:", roles);
+        
+        // Check if user has admin role in any of their roles
+        const isAdmin = roles?.some(role => role.role === "admin");
+        
+        if (!isAdmin) {
+          console.log("ProtectedRoute: User is not admin, redirecting to home");
+          toast.error("Neturite prieigos teisių");
+          navigate("/", { replace: true });
+          return;
+        }
+      }
+
+      console.log("ProtectedRoute: Access granted");
+      setHasAccess(true);
+      setIsLoading(false);
+    };
+
+    checkAccess();
+  }, [session, navigate, supabase, requireAdmin]);
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner />
@@ -30,6 +70,5 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Only render children if we have a valid session
-  return session ? <>{children}</> : null;
+  return hasAccess ? <>{children}</> : null;
 };

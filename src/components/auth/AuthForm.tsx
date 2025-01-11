@@ -1,93 +1,60 @@
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-const formSchema = z.object({
-  email: z.string().email("Neteisingas el. pašto formatas"),
-  password: z
-    .string()
-    .min(6, "Slaptažodis turi būti bent 6 simbolių ilgio")
-    .max(100, "Slaptažodis negali būti ilgesnis nei 100 simbolių"),
-});
+import { Label } from "@/components/ui/label";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface AuthFormProps {
-  onSubmit: (email: string, password: string) => void;
-  isLoading?: boolean;
-  submitText?: string;
+  onSubmit: (email: string, password: string) => Promise<void>;
+  isLoading: boolean;
 }
 
-export const AuthForm = ({ 
-  onSubmit, 
-  isLoading = false,
-  submitText = "Prisijungti"
-}: AuthFormProps) => {
-  const [showPassword, setShowPassword] = useState(false);
+export const AuthForm = ({ onSubmit, isLoading }: AuthFormProps) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    onSubmit(values.email, values.password);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSubmit(email, password);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>El. paštas</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  placeholder="jusu@pastas.lt"
-                  {...field}
-                  disabled={isLoading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="email">El. paštas</Label>
+        <Input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="jusu@pastas.lt"
+          required
+          disabled={isLoading}
+          className="w-full"
         />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Slaptažodis</FormLabel>
-              <FormControl>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  {...field}
-                  disabled={isLoading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="password">Slaptažodis</Label>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Įveskite slaptažodį"
+          required
+          disabled={isLoading}
+          className="w-full"
         />
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Palaukite..." : submitText}
-        </Button>
-      </form>
-    </Form>
+      </div>
+
+      <Button
+        type="submit"
+        disabled={isLoading}
+        className="w-full"
+      >
+        {isLoading ? <LoadingSpinner /> : "Prisijungti"}
+      </Button>
+    </form>
   );
 };

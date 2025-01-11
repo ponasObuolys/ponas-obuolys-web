@@ -1,47 +1,80 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SessionContextProvider } from "@supabase/auth-helpers-react";
+import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Toaster } from "@/components/ui/toaster";
-import Navigation from "@/components/Navigation";
+import Root from "@/components/Root";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "@/pages/Index";
-import Videos from "@/pages/Videos";
-import Blog from "@/pages/Blog";
-import Contact from "@/pages/Kontaktai";
-import About from "@/pages/Apie";
+import Auth from "@/pages/Auth";
 import Admin from "@/pages/Admin";
-import AuthPage from "@/pages/auth/AuthPage";
-import RegisterPage from "@/pages/auth/Register";
-import { supabase } from "./integrations/supabase/client";
+import NewCourse from "@/pages/admin/courses/new";
+import CourseList from "@/components/admin/courses/CourseList";
+import KursaiLayout from "@/components/courses/KursaiLayout";
+import KursaiPage from "@/pages/Kursai";
 
 const queryClient = new QueryClient();
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Root />,
+    children: [
+      {
+        index: true,
+        element: <Index />,
+      },
+      {
+        path: "auth",
+        element: <Auth />,
+      },
+      {
+        path: "kursai",
+        element: <KursaiLayout />,
+        errorElement: <div className="container mx-auto py-8"><ErrorBoundary>Kažkas nepavyko. Bandykite dar kartą vėliau.</ErrorBoundary></div>,
+        children: [
+          {
+            index: true,
+            element: <KursaiPage />,
+          },
+        ],
+      },
+      {
+        path: "admin",
+        element: (
+          <ProtectedRoute>
+            <Admin />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "admin/kursai",
+        element: (
+          <ProtectedRoute>
+            <CourseList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "admin/kursai/naujas",
+        element: (
+          <ProtectedRoute>
+            <NewCourse />
+          </ProtectedRoute>
+        ),
+      },
+    ],
+  },
+]);
+
 function App() {
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <Router>
-            <div className="min-h-screen bg-background font-quicksand text-foreground">
-              <Navigation />
-              <main className="container mx-auto px-4 pt-20 pb-8">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/videos" element={<Videos />} />
-                  <Route path="/naujienos" element={<Blog />} />
-                  <Route path="/kontaktai" element={<Contact />} />
-                  <Route path="/apie" element={<About />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/auth/register" element={<RegisterPage />} />
-                </Routes>
-              </main>
-            </div>
-          </Router>
-          <Toaster />
-        </ThemeProvider>
-      </QueryClientProvider>
-    </SessionContextProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

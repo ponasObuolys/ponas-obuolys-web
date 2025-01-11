@@ -19,19 +19,18 @@ export const useUserRole = () => {
       }
 
       try {
-        const { data, error } = await supabase
+        const { data: roles, error } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", session.user.id)
-          .order("created_at", { ascending: false })
-          .limit(1);
+          .eq("user_id", session.user.id);
 
         if (error) {
-          console.error("Error fetching user role:", error);
+          console.error("Error fetching user roles:", error);
           setRole(null);
-        } else if (data && data.length > 0) {
-          // Take the most recently created role
-          setRole(data[0].role);
+        } else if (roles && roles.length > 0) {
+          // If user has admin role in any of their roles, consider them admin
+          const hasAdminRole = roles.some(r => r.role === "admin");
+          setRole(hasAdminRole ? "admin" : "user");
         } else {
           setRole(null);
         }

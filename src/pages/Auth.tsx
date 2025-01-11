@@ -4,6 +4,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 import type { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
@@ -11,29 +12,41 @@ const Auth = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    console.log("Auth page mounted");
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === "SIGNED_IN") {
-          navigate("/");
-        }
-        if (event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
-          setErrorMessage("");
-        }
-        if (event === "USER_UPDATED") {
-          const { error } = await supabase.auth.getSession();
-          if (error) {
-            console.error("Auth error:", error);
-            setErrorMessage(getErrorMessage(error));
-            if (error.message.includes("refresh_token_not_found")) {
-              await supabase.auth.signOut();
-              navigate("/auth");
-            }
+        console.log("Auth state changed:", event, !!session);
+        
+        if (event === "SIGNED_IN" && session) {
+          console.log("User signed in, checking role...");
+          const { data: roles } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", session.user.id)
+            .single();
+
+          console.log("User roles:", roles);
+
+          if (roles?.role === "admin") {
+            console.log("Admin user detected, redirecting to admin");
+            navigate("/admin");
+          } else {
+            console.log("Non-admin user, redirecting to home");
+            navigate("/");
           }
+        }
+        
+        if (event === "SIGNED_OUT") {
+          console.log("User signed out, clearing error");
+          setErrorMessage("");
         }
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("Auth page unmounting, cleaning up subscription");
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const getErrorMessage = (error: AuthError) => {
