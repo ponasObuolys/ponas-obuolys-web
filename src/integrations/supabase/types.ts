@@ -596,6 +596,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_youtube_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
