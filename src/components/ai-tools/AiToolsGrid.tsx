@@ -10,6 +10,28 @@ interface AiToolsGridProps {
 }
 
 export const AiToolsGrid = ({ tools }: AiToolsGridProps) => {
+  const getPricingBadgeStyle = (pricing: AiTool['pricing_model']) => {
+    switch (pricing) {
+      case 'free':
+        return 'text-green-500 bg-green-50 border-green-100';
+      case 'freemium':
+        return 'text-orange-500 bg-orange-50 border-orange-100';
+      case 'paid':
+        return 'text-red-500 bg-red-50 border-red-100';
+    }
+  };
+
+  const getPricingLabel = (pricing: AiTool['pricing_model']) => {
+    switch (pricing) {
+      case 'free':
+        return 'Nemokama';
+      case 'freemium':
+        return 'Freemium';
+      case 'paid':
+        return 'Mokama';
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {tools.map((tool) => (
@@ -21,9 +43,19 @@ export const AiToolsGrid = ({ tools }: AiToolsGridProps) => {
                 <Badge variant="secondary">Rekomenduojama</Badge>
               )}
             </div>
-            {tool.category && (
-              <Badge variant="outline">{tool.category.name}</Badge>
-            )}
+            <div className="flex flex-wrap gap-2">
+              {tool.category && (
+                <Badge variant="outline">{tool.category.name}</Badge>
+              )}
+              <Badge className={getPricingBadgeStyle(tool.pricing_model)}>
+                {getPricingLabel(tool.pricing_model)}
+              </Badge>
+              {tool.special_offer && (
+                <Badge className="text-purple-500 bg-purple-50 border-purple-100">
+                  Specialus pasiūlymas
+                </Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="aspect-video relative rounded-md overflow-hidden">
