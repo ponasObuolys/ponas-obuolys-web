@@ -10,6 +10,7 @@ import Settings from "@/pages/Settings";
 import Videos from "@/pages/Videos";
 import Kontaktai from "@/pages/Kontaktai";
 import Apie from "@/pages/Apie";
+import Irankiai from "@/pages/Irankiai";
 import { NotFound } from "@/components/NotFound";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -59,6 +60,7 @@ function App() {
                   <Route index element={<Index />} />
                   <Route path="naujienos" element={<Blog />} />
                   <Route path="naujienos/:slug" element={<BlogPost />} />
+                  <Route path="irankiai" element={<Irankiai />} />
                   <Route
                     path="editor"
                     element={
