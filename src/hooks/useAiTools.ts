@@ -15,7 +15,25 @@ export const useAiTools = (filters: AiToolsFilters) => {
         `);
 
       if (filters.search) {
-        query = query.textSearch("search_vector", filters.search);
+        // Format search terms for tsquery
+        const searchTerms = filters.search
+          .trim()
+          .split(/\s+/)
+          .map(term => term + ':*')
+          .join(' & ');
+        
+        console.log("Formatted search terms:", searchTerms);
+        
+        try {
+          query = query.textSearch('search_vector', searchTerms, {
+            type: 'plain',
+            config: 'lithuanian'
+          });
+        } catch (error) {
+          console.error("Error formatting search query:", error);
+          // If search query fails, return all results instead of throwing
+          console.log("Falling back to unfiltered results");
+        }
       }
 
       if (filters.pricing !== "all") {
