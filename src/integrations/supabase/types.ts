@@ -9,6 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_tools: {
+        Row: {
+          affiliate_link: string | null
+          category_id: string | null
+          created_at: string
+          description: string
+          id: string
+          is_recommended: boolean | null
+          name: string
+          pricing_model: Database["public"]["Enums"]["pricing_model"]
+          search_vector: unknown | null
+          slug: string
+          special_offer: string | null
+          thumbnail: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_link?: string | null
+          category_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          is_recommended?: boolean | null
+          name: string
+          pricing_model?: Database["public"]["Enums"]["pricing_model"]
+          search_vector?: unknown | null
+          slug: string
+          special_offer?: string | null
+          thumbnail: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_link?: string | null
+          category_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_recommended?: boolean | null
+          name?: string
+          pricing_model?: Database["public"]["Enums"]["pricing_model"]
+          search_vector?: unknown | null
+          slug?: string
+          special_offer?: string | null
+          thumbnail?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tools_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cached_youtube_videos: {
         Row: {
           cached_at: string
@@ -546,6 +602,7 @@ export type Database = {
       course_status: "upcoming" | "active" | "completed" | "draft"
       currency_type: "USD" | "EUR" | "LTL"
       post_status: "draft" | "published" | "scheduled"
+      pricing_model: "free" | "freemium" | "paid"
     }
     CompositeTypes: {
       [_ in never]: never
