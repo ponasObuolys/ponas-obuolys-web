@@ -8,6 +8,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { NotFound } from "@/components/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Button } from "@/components/ui/button";
+import { Comments } from "@/components/Comments";
 import { toast } from "sonner";
 
 export default function BlogPost() {
@@ -146,7 +147,7 @@ export default function BlogPost() {
           <div dangerouslySetInnerHTML={{ __html: post.content || "" }} />
         </div>
 
-        <div className="border-t pt-8">
+        <div className="border-t pt-8 mb-8">
           <h2 className="text-lg font-semibold mb-4">Dalintis straipsniu:</h2>
           <div className="flex gap-2">
             <Button
@@ -182,6 +183,10 @@ export default function BlogPost() {
               <LinkIcon className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+
+        <div className="border-t pt-8">
+          <Comments postId={post.id} />
         </div>
       </article>
     </ErrorBoundary>
