@@ -1,4 +1,4 @@
-const Hero = () => {
+export const Hero = () => {
   return (
     <div className="relative min-h-[25vh] flex items-center justify-center">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center">
@@ -17,5 +17,3 @@ const Hero = () => {
     </div>
   );
 };
-
-export default Hero;

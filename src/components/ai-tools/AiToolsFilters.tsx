@@ -7,11 +7,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { AiToolsFilters } from "@/types/ai-tools";
+import type { AiToolsFilters as AiToolsFiltersType } from "@/types/ai-tools";
 
 interface AiToolsFiltersProps {
-  filters: AiToolsFilters;
-  onFiltersChange: (filters: Partial<AiToolsFilters>) => void;
+  filters: AiToolsFiltersType;
+  onFiltersChange: (filters: Partial<AiToolsFiltersType>) => void;
 }
 
 export const AiToolsFilters = ({
@@ -32,7 +32,7 @@ export const AiToolsFilters = ({
       <Select
         value={filters.pricing}
         onValueChange={(value) =>
-          onFiltersChange({ pricing: value as AiToolsFilters["pricing"] })
+          onFiltersChange({ pricing: value as AiToolsFiltersType["pricing"] })
         }
       >
         <SelectTrigger className="w-[180px]">
