@@ -21,24 +21,11 @@ serve(async (req) => {
     const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')
     const maxResults = 12
 
-    console.log('Function invoked with params:', { pageParam, staleTime })
-    console.log('Environment check:', { 
-      hasApiKey: !!API_KEY, 
-      hasChannelId: !!CHANNEL_ID,
-      hasSupabaseUrl: !!SUPABASE_URL,
-      hasSupabaseKey: !!SUPABASE_ANON_KEY
-    })
-
     if (!CHANNEL_ID || !API_KEY || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
       throw new Error('Required environment variables are not set')
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    })
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     
     console.log('Checking cache for videos...')
     
@@ -49,25 +36,14 @@ serve(async (req) => {
       .order('published_at', { ascending: false })
       .range(pageParam ? pageParam * maxResults : 0, (pageParam ? pageParam + 1 : 1) * maxResults - 1)
 
-    if (cacheError) {
-      console.error('Error fetching from cache:', cacheError)
-    }
-
-    console.log('Cache status:', {
-      videosFound: cachedVideos?.length || 0,
-      hasError: !!cacheError
-    })
-
     // Check if we need to refresh cache using the provided stale time
     const oldestAllowedCache = new Date(Date.now() - staleTime)
     const needsCacheRefresh = !cachedVideos?.length || 
-      (cachedVideos[0]?.cached_at && new Date(cachedVideos[0].cached_at) < oldestAllowedCache)
+      new Date(cachedVideos[0].cached_at) < oldestAllowedCache
 
-    console.log('Cache refresh check:', {
-      needsRefresh: needsCacheRefresh,
-      oldestAllowed: oldestAllowedCache.toISOString(),
-      oldestCached: cachedVideos?.[0]?.cached_at
-    })
+    if (cacheError) {
+      console.error('Error fetching from cache:', cacheError)
+    }
 
     if (!needsCacheRefresh && cachedVideos?.length) {
       console.log('Returning cached videos')
@@ -91,10 +67,11 @@ serve(async (req) => {
 
     console.log('Cache miss or expired, fetching from YouTube API...')
     const pageToken = pageParam ? `&pageToken=${pageParam}` : ''
-    const youtubeUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&key=${API_KEY}${pageToken}`
-    
-    console.log('Fetching from YouTube API...')
-    const response = await fetch(youtubeUrl, { method: 'GET' })
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&key=${API_KEY}${pageToken}`,
+      { method: 'GET' }
+    )
+
     const data = await response.json()
     
     if (data.error) {
@@ -131,7 +108,6 @@ serve(async (req) => {
       description: item.snippet.description,
       thumbnail: item.snippet.thumbnails.high.url,
       published_at: item.snippet.publishedAt,
-      cached_at: new Date().toISOString(),
     }))
 
     if (videos.length > 0) {
@@ -148,8 +124,6 @@ serve(async (req) => {
 
       if (upsertError) {
         console.error('Error updating cache:', upsertError)
-      } else {
-        console.log('Cache updated successfully')
       }
     }
 
