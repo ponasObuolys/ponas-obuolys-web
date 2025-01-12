@@ -130,39 +130,6 @@ export type Database = {
           },
         ]
       }
-      contact_messages: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          ip_address: string | null
-          message: string
-          name: string
-          status: string | null
-          subject: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          ip_address?: string | null
-          message: string
-          name: string
-          status?: string | null
-          subject: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          ip_address?: string | null
-          message?: string
-          name?: string
-          status?: string | null
-          subject?: string
-        }
-        Relationships: []
-      }
       post_categories: {
         Row: {
           category_id: string
