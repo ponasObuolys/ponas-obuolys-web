@@ -46,7 +46,7 @@ const Navigation = () => {
 
   const navLinks = [
     { name: "Pradžia", path: "/" },
-    { name: "Vaizdo įrašai", path: "/videos" },
+    { name: "YouTube", path: "/videos" },
     { name: "Naujienos", path: "/naujienos" },
     { name: "Įrankiai", path: "/irankiai" },
     { name: "Kontaktai", path: "/kontaktai" },

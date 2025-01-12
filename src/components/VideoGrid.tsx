@@ -50,7 +50,7 @@ export const VideoGrid = () => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
         {[...Array(6)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
+          <Card key={i} className="animate-pulse min-h-[400px]">
             <div className="aspect-video bg-gray-200 rounded-t-lg" />
             <CardHeader>
               <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -80,25 +80,30 @@ export const VideoGrid = () => {
             href={`https://youtube.com/watch?v=${video.id}`}
             target="_blank"
             rel="noopener noreferrer"
+            className="block h-full"
           >
-            <Card className="overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
+            <Card className="overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg h-full flex flex-col">
               <img
                 src={video.thumbnail}
                 alt={video.title}
                 className="w-full aspect-video object-cover"
                 loading="lazy"
               />
-              <CardHeader>
-                <CardTitle className="text-lg">{video.title}</CardTitle>
-                <p className="text-sm text-gray-500">
+              <CardHeader className="flex-none">
+                <CardTitle className="text-lg min-h-[3rem] line-clamp-2">
+                  {video.title}
+                </CardTitle>
+                <p className="text-sm text-gray-500 h-6">
                   {formatDistanceToNow(new Date(video.publishedAt), { 
                     addSuffix: true,
                     locale: lt 
                   })}
                 </p>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 line-clamp-2">{video.description}</p>
+              <CardContent className="flex-grow">
+                <p className="text-sm text-gray-600 min-h-[4.5rem] line-clamp-3">
+                  {video.description}
+                </p>
               </CardContent>
             </Card>
           </a>
