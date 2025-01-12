@@ -31,10 +31,12 @@ const formSchema = z.object({
   }),
 });
 
+type ContactFormValues = z.infer<typeof formSchema>;
+
 export const ContactForm = () => {
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<ContactFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -44,13 +46,18 @@ export const ContactForm = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: ContactFormValues) => {
     setLoading(true);
     try {
       // Insert message into database
       const { error: dbError } = await supabase
         .from("contact_messages")
-        .insert(values);
+        .insert({
+          name: values.name,
+          email: values.email,
+          subject: values.subject,
+          message: values.message,
+        });
 
       if (dbError) {
         throw dbError;
