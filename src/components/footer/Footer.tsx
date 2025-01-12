@@ -85,9 +85,19 @@ const AdminSection = () => {
 
 const Copyright = () => (
   <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-    <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-      © {new Date().getFullYear()} ponas Obuolys. Visos teisės saugomos.
-    </p>
+    <div className="flex flex-col items-center space-y-2">
+      <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+        © {new Date().getFullYear()} ponas Obuolys. Visos teisės saugomos.
+      </p>
+      <a
+        href="https://lovable.dev/#via=ponasObuolys"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-colors animate-fadeIn"
+      >
+        Sukurta su Lovable.DEV
+      </a>
+    </div>
   </div>
 );
 
