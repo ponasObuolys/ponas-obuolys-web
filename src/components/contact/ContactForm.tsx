@@ -50,7 +50,7 @@ export const ContactForm = () => {
       // Insert message into database
       const { error: dbError } = await supabase
         .from("contact_messages")
-        .insert([values]);
+        .insert(values);
 
       if (dbError) {
         throw dbError;

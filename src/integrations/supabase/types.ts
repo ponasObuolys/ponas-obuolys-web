@@ -132,34 +132,34 @@ export type Database = {
       }
       contact_messages: {
         Row: {
-          id: string
-          name: string
-          email: string
-          subject: string
-          message: string
-          ip_address: string | null
           created_at: string
+          email: string
+          id: string
+          ip_address: string | null
+          message: string
+          name: string
           status: string | null
+          subject: string
         }
         Insert: {
-          id?: string
-          name: string
-          email: string
-          subject: string
-          message: string
-          ip_address?: string | null
           created_at?: string
+          email: string
+          id?: string
+          ip_address?: string | null
+          message: string
+          name: string
           status?: string | null
+          subject: string
         }
         Update: {
-          id?: string
-          name?: string
-          email?: string
-          subject?: string
-          message?: string
-          ip_address?: string | null
           created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string | null
+          message?: string
+          name?: string
           status?: string | null
+          subject?: string
         }
         Relationships: []
       }
@@ -472,10 +472,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<
@@ -495,8 +495,8 @@ export type TablesInsert<
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
         Insert: infer I
       }
-    ? I
-    : never
+      ? I
+      : never
     : never
 
 export type TablesUpdate<
@@ -516,8 +516,8 @@ export type TablesUpdate<
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
         Update: infer U
       }
-    ? U
-    : never
+      ? U
+      : never
     : never
 
 export type Enums<
