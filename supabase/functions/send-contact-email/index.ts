@@ -16,12 +16,20 @@ interface ContactFormData {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    if (!RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not configured");
+      throw new Error("Email service is not configured");
+    }
+
     const { name, email, subject, message }: ContactFormData = await req.json();
+
+    console.log("Sending email with data:", { name, email, subject });
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -45,7 +53,9 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (!res.ok) {
-      throw new Error(await res.text());
+      const errorData = await res.text();
+      console.error("Resend API error:", errorData);
+      throw new Error("Failed to send email via Resend");
     }
 
     return new Response(JSON.stringify({ success: true }), {
