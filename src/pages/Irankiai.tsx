@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Pencil } from "lucide-react";
 import { AiToolsGrid } from "@/components/ai-tools/AiToolsGrid";
 import { AiToolsFilters } from "@/components/ai-tools/AiToolsFilters";
 import { useAiTools } from "@/hooks/useAiTools";
@@ -9,6 +9,7 @@ import { AiToolForm } from "@/components/ai-tools/AiToolForm";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useUserRole } from "@/hooks/useUserRole";
 import type { AiToolsFilters as AiToolsFiltersType } from "@/types/ai-tools";
+import type { AiTool } from "@/types/ai-tools";
 
 export default function Irankiai() {
   const [filters, setFilters] = useState<AiToolsFiltersType>({
@@ -21,13 +22,24 @@ export default function Irankiai() {
   const session = useSession();
   const { role } = useUserRole();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<AiTool | null>(null);
+
+  const handleEditTool = (tool: AiTool) => {
+    setSelectedTool(tool);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsFormOpen(false);
+    setSelectedTool(null);
+  };
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">AI Įrankiai</h1>
         {session && role === "admin" && (
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <Dialog open={isFormOpen} onOpenChange={handleCloseDialog}>
             <DialogTrigger asChild>
               <Button>
                 <PlusCircle className="h-4 w-4 mr-2" />
@@ -35,7 +47,10 @@ export default function Irankiai() {
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
-              <AiToolForm onSuccess={() => setIsFormOpen(false)} />
+              <AiToolForm 
+                onSuccess={handleCloseDialog} 
+                initialData={selectedTool || undefined}
+              />
             </DialogContent>
           </Dialog>
         )}
@@ -58,7 +73,10 @@ export default function Irankiai() {
           ))}
         </div>
       ) : (
-        <AiToolsGrid tools={tools || []} />
+        <AiToolsGrid 
+          tools={tools || []} 
+          onEdit={session && role === "admin" ? handleEditTool : undefined}
+        />
       )}
     </div>
   );

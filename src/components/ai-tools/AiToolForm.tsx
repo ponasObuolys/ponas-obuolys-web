@@ -25,6 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import MediaUploader from "@/components/editor/MediaUploader";
 import { slugify } from "@/utils/slugify";
+import { useQuery } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
 
 type AiTool = Database["public"]["Tables"]["ai_tools"]["Insert"];
@@ -33,6 +34,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Pavadinimas turi būti bent 2 simbolių ilgio"),
   description: z.string().min(10, "Aprašymas turi būti bent 10 simbolių ilgio"),
   pricing_model: z.enum(["free", "freemium", "paid"]),
+  category_id: z.string().min(1, "Privaloma pasirinkti kategoriją"),
   thumbnail: z.string().min(1, "Privaloma įkelti nuotrauką"),
   affiliate_link: z.string().optional(),
   is_recommended: z.boolean().default(false),
@@ -41,20 +43,41 @@ const formSchema = z.object({
 
 interface AiToolFormProps {
   onSuccess: () => void;
+  initialData?: AiTool;
 }
 
-export function AiToolForm({ onSuccess }: AiToolFormProps) {
+export function AiToolForm({ onSuccess, initialData }: AiToolFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = !!initialData;
+
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+
+      if (error) {
+        console.error("Error fetching categories:", error);
+        throw error;
+      }
+
+      return data;
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      pricing_model: "paid",
-      thumbnail: "",
-      affiliate_link: "",
-      is_recommended: false,
-      special_offer: "",
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      pricing_model: initialData?.pricing_model || "paid",
+      category_id: initialData?.category_id || "",
+      thumbnail: initialData?.thumbnail || "",
+      affiliate_link: initialData?.affiliate_link || "",
+      is_recommended: initialData?.is_recommended || false,
+      special_offer: initialData?.special_offer || "",
     },
   });
 
@@ -66,6 +89,7 @@ export function AiToolForm({ onSuccess }: AiToolFormProps) {
         name: values.name,
         description: values.description,
         pricing_model: values.pricing_model,
+        category_id: values.category_id,
         thumbnail: values.thumbnail,
         affiliate_link: values.affiliate_link || null,
         is_recommended: values.is_recommended,
@@ -73,15 +97,46 @@ export function AiToolForm({ onSuccess }: AiToolFormProps) {
         slug: slugify(values.name),
       };
 
-      const { error } = await supabase.from("ai_tools").insert(toolData);
+      if (isEditing && initialData) {
+        const { error } = await supabase
+          .from("ai_tools")
+          .update(toolData)
+          .eq("id", initialData.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success("Įrankis sėkmingai atnaujintas");
+      } else {
+        const { error } = await supabase.from("ai_tools").insert(toolData);
+        if (error) throw error;
+        toast.success("Įrankis sėkmingai pridėtas");
+      }
 
-      toast.success("Įrankis sėkmingai pridėtas");
       onSuccess();
     } catch (error) {
       console.error("Error submitting tool:", error);
-      toast.error("Nepavyko pridėti įrankio");
+      toast.error(isEditing ? "Nepavyko atnaujinti įrankio" : "Nepavyko pridėti įrankio");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!initialData || !confirm("Ar tikrai norite ištrinti šį įrankį?")) return;
+
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from("ai_tools")
+        .delete()
+        .eq("id", initialData.id);
+
+      if (error) throw error;
+
+      toast.success("Įrankis sėkmingai ištrintas");
+      onSuccess();
+    } catch (error) {
+      console.error("Error deleting tool:", error);
+      toast.error("Nepavyko ištrinti įrankio");
     } finally {
       setIsSubmitting(false);
     }
@@ -136,6 +191,34 @@ export function AiToolForm({ onSuccess }: AiToolFormProps) {
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="category_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kategorija</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pasirinkite kategoriją" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -239,9 +322,21 @@ export function AiToolForm({ onSuccess }: AiToolFormProps) {
           )}
         />
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Pridedama..." : "Pridėti įrankį"}
-        </Button>
+        <div className="flex justify-between">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saugoma..." : isEditing ? "Atnaujinti" : "Pridėti įrankį"}
+          </Button>
+          {isEditing && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isSubmitting}
+            >
+              Ištrinti
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
   );
