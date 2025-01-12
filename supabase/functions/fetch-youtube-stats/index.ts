@@ -6,6 +6,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -18,6 +19,8 @@ serve(async (req) => {
       throw new Error('Required environment variables are not set')
     }
 
+    console.log('Fetching YouTube stats for channel:', CHANNEL_ID)
+
     const response = await fetch(
       `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`,
       { method: 'GET' }
@@ -26,8 +29,11 @@ serve(async (req) => {
     const data = await response.json()
     
     if (data.error) {
+      console.error('YouTube API error:', data.error)
       throw new Error(data.error.message)
     }
+
+    console.log('Successfully fetched YouTube stats')
 
     const stats = data.items[0]?.statistics || {
       subscriberCount: "0",
