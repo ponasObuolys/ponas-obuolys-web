@@ -12,7 +12,7 @@ export type Database = {
       ai_tools: {
         Row: {
           affiliate_link: string | null
-          category_id: string | null
+          category_id: string
           created_at: string
           description: string
           id: string
@@ -27,7 +27,7 @@ export type Database = {
         }
         Insert: {
           affiliate_link?: string | null
-          category_id?: string | null
+          category_id: string
           created_at?: string
           description: string
           id?: string
@@ -42,7 +42,7 @@ export type Database = {
         }
         Update: {
           affiliate_link?: string | null
-          category_id?: string | null
+          category_id?: string
           created_at?: string
           description?: string
           id?: string
