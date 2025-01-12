@@ -58,6 +58,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Failed to send email via Resend");
     }
 
+    console.log("Email sent successfully");
+
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
