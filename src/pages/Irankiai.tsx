@@ -22,16 +22,16 @@ export default function Irankiai() {
   const { data: tools, isLoading } = useAiTools(filters);
   const session = useSession();
   const { role } = useUserRole();
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<AiTool | null>(null);
 
   const handleEditTool = (tool: AiTool) => {
     setSelectedTool(tool);
-    setIsFormOpen(true);
+    setIsDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
-    setIsFormOpen(false);
+    setIsDialogOpen(false);
     setSelectedTool(null);
   };
 
@@ -40,7 +40,7 @@ export default function Irankiai() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">AI Įrankiai</h1>
         {session && role === "admin" && (
-          <Dialog open={isFormOpen} onOpenChange={handleCloseDialog}>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <PlusCircle className="h-4 w-4 mr-2" />
