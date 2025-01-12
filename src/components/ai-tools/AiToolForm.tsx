@@ -30,13 +30,15 @@ import type { Database } from "@/integrations/supabase/types";
 
 type AiTool = Database["public"]["Tables"]["ai_tools"]["Insert"];
 
+const urlSchema = z.string().url().or(z.string().length(0));
+
 const formSchema = z.object({
   name: z.string().min(2, "Pavadinimas turi būti bent 2 simbolių ilgio"),
   description: z.string().min(10, "Aprašymas turi būti bent 10 simbolių ilgio"),
   pricing_model: z.enum(["free", "freemium", "paid"]),
   category_id: z.string().min(1, "Privaloma pasirinkti kategoriją"),
   thumbnail: z.string().min(1, "Privaloma įkelti nuotrauką"),
-  affiliate_link: z.string().optional(),
+  affiliate_link: urlSchema,
   is_recommended: z.boolean().default(false),
   special_offer: z.string().optional(),
 });
@@ -84,6 +86,11 @@ export function AiToolForm({ onSuccess, initialData }: AiToolFormProps) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
+      
+      // Validate URL format if provided
+      if (values.affiliate_link && !values.affiliate_link.startsWith('http')) {
+        values.affiliate_link = `https://${values.affiliate_link}`;
+      }
       
       const toolData: AiTool = {
         name: values.name,
