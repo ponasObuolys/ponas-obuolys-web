@@ -84,14 +84,14 @@ export function LatestNews() {
         
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {posts?.map((post) => (
-            <Link key={post.id} to={`/naujienos/${post.slug}`}>
-              <Card className="min-h-[500px] flex flex-col transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/50 dark:bg-gray-800/50">
+            <Link key={post.id} to={`/naujienos/${post.slug}`} className="block overflow-hidden rounded-lg">
+              <Card className="min-h-[500px] flex flex-col transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/50 dark:bg-gray-800/50 rounded-lg transform-gpu will-change-transform">
                 {post.featured_image && (
-                  <div className="aspect-video">
+                  <div className="aspect-video overflow-hidden">
                     <img
                       src={post.featured_image}
                       alt={post.title}
-                      className="w-full h-full object-cover rounded-t-lg"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                 )}

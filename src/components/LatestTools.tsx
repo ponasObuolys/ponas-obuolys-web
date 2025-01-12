@@ -105,14 +105,14 @@ export function LatestTools() {
                   handleToolClick(tool);
                 }
               }}
-              className="block group"
+              className="block group overflow-hidden rounded-lg"
             >
-              <Card className="h-full flex flex-col transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/50 dark:bg-gray-800/50 cursor-pointer">
+              <Card className="h-full flex flex-col transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/50 dark:bg-gray-800/50 cursor-pointer rounded-lg transform-gpu will-change-transform">
                 <div className="relative h-[200px] w-full overflow-hidden">
                   <img
                     src={tool.thumbnail}
                     alt={tool.name}
-                    className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
                 </div>
