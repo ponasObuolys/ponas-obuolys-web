@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Pencil } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { AiToolsGrid } from "@/components/ai-tools/AiToolsGrid";
 import { AiToolsFilters } from "@/components/ai-tools/AiToolsFilters";
 import { useAiTools } from "@/hooks/useAiTools";
@@ -16,6 +16,7 @@ export default function Irankiai() {
     search: "",
     pricing: "all",
     categoryId: null,
+    category: "all"
   });
   
   const { data: tools, isLoading } = useAiTools(filters);

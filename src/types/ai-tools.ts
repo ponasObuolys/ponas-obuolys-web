@@ -7,4 +7,5 @@ export interface AiToolsFilters {
   search: string;
   pricing: PricingModel | "all";
   categoryId: string | null;
+  category: string;
 }
