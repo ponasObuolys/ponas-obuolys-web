@@ -49,7 +49,16 @@ export const ContactForm = () => {
   const onSubmit = async (values: ContactFormValues) => {
     setLoading(true);
     try {
-      // Insert message into database
+      // First, call the edge function to send email
+      const { error } = await supabase.functions.invoke("send-contact-email", {
+        body: values,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Then insert message into database
       const { error: dbError } = await supabase
         .from("contact_messages")
         .insert({
@@ -61,15 +70,6 @@ export const ContactForm = () => {
 
       if (dbError) {
         throw dbError;
-      }
-
-      // Call the edge function to send email
-      const { error } = await supabase.functions.invoke("send-contact-email", {
-        body: values,
-      });
-
-      if (error) {
-        throw error;
       }
 
       toast.success("Žinutė išsiųsta sėkmingai!");
