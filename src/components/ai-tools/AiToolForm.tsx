@@ -2,31 +2,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Form } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import MediaUploader from "@/components/editor/MediaUploader";
 import { slugify } from "@/utils/slugify";
 import { useQuery } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
+import { AiToolFormFields } from "./AiToolFormFields";
+import { AiToolImageUpload } from "./AiToolImageUpload";
+import { AiToolFormActions } from "./AiToolFormActions";
 
 type AiTool = Database["public"]["Tables"]["ai_tools"]["Insert"];
 
@@ -87,7 +71,6 @@ export function AiToolForm({ onSuccess, initialData }: AiToolFormProps) {
     try {
       setIsSubmitting(true);
       
-      // Validate URL format if provided
       if (values.affiliate_link && !values.affiliate_link.startsWith('http')) {
         values.affiliate_link = `https://${values.affiliate_link}`;
       }
@@ -175,175 +158,17 @@ export function AiToolForm({ onSuccess, initialData }: AiToolFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pavadinimas</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <AiToolFormFields form={form} categories={categories} />
+        <AiToolImageUpload 
+          form={form} 
+          onImageUpload={handleImageUpload}
+          isSubmitting={isSubmitting}
         />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Aprašymas</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        <AiToolFormActions 
+          isSubmitting={isSubmitting}
+          isEditing={isEditing}
+          onDelete={handleDelete}
         />
-
-        <FormField
-          control={form.control}
-          name="category_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kategorija</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pasirinkite kategoriją" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories?.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="pricing_model"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kainodara</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pasirinkite kainodarą" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="free">Nemokama</SelectItem>
-                  <SelectItem value="freemium">Freemium</SelectItem>
-                  <SelectItem value="paid">Mokama</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="thumbnail"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nuotrauka</FormLabel>
-              <FormControl>
-                <div className="space-y-4">
-                  <MediaUploader
-                    onUpload={handleImageUpload}
-                    disabled={isSubmitting}
-                  />
-                  {field.value && (
-                    <img
-                      src={field.value}
-                      alt="Preview"
-                      className="w-40 h-40 object-cover rounded-lg"
-                    />
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="affiliate_link"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nuoroda</FormLabel>
-              <FormControl>
-                <Input {...field} type="url" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="is_recommended"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel>ponas Obuolys rekomenduoja</FormLabel>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="special_offer"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Specialus pasiūlymas</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-between">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saugoma..." : isEditing ? "Atnaujinti" : "Pridėti įrankį"}
-          </Button>
-          {isEditing && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isSubmitting}
-            >
-              Ištrinti
-            </Button>
-          )}
-        </div>
       </form>
     </Form>
   );
