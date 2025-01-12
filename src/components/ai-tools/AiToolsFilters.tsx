@@ -75,16 +75,16 @@ export const AiToolsFilters = ({
         </SelectContent>
       </Select>
       <Select
-        value={filters.categoryId || ""}
+        value={filters.categoryId || "all"}
         onValueChange={(value) =>
-          onFiltersChange({ categoryId: value === "" ? null : value })
+          onFiltersChange({ categoryId: value === "all" ? null : value })
         }
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Kategorija" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">Visos kategorijos</SelectItem>
+          <SelectItem value="all">Visos kategorijos</SelectItem>
           {categories?.map((category) => (
             <SelectItem key={category.id} value={category.id}>
               {category.name}
