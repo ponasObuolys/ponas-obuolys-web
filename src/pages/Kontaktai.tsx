@@ -1,10 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { SocialContacts } from "@/components/contact/SocialContacts";
+import { useEffect, useState } from "react";
 
 const Kontaktai = () => {
-  console.log("Kontaktai component rendered");
+  const [imageLoaded, setImageLoaded] = useState(false);
   
+  useEffect(() => {
+    // Preload the image
+    const img = new Image();
+    img.src = "/lovable-uploads/aurimas.webp";
+    img.onload = () => setImageLoaded(true);
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-5xl mx-auto">
@@ -20,10 +28,19 @@ const Kontaktai = () => {
             </div>
             
             <div className="relative w-full aspect-square md:aspect-[4/3] rounded-lg overflow-hidden">
+              <div
+                className={`absolute inset-0 bg-gray-200 animate-pulse ${
+                  imageLoaded ? "opacity-0" : "opacity-100"
+                } transition-opacity duration-300`}
+              />
               <img
-                src="/lovable-uploads/aurimas.png"
+                src="/lovable-uploads/aurimas.webp"
                 alt="Aurimas - ponas Obuolys"
-                className="object-cover w-full h-full"
+                className={`object-cover w-full h-full ${
+                  imageLoaded ? "opacity-100" : "opacity-0"
+                } transition-opacity duration-300`}
+                loading="lazy"
+                onLoad={() => setImageLoaded(true)}
               />
             </div>
 

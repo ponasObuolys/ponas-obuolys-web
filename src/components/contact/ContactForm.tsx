@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Form,
   FormControl,
@@ -46,8 +47,24 @@ export const ContactForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     try {
-      // Here you would typically send the form data to your backend
-      console.log("Form submitted:", values);
+      // Insert message into database
+      const { error: dbError } = await supabase
+        .from("contact_messages")
+        .insert([values]);
+
+      if (dbError) {
+        throw new dbError;
+      }
+
+      // Call the edge function to send email
+      const { error } = await supabase.functions.invoke("send-contact-email", {
+        body: values,
+      });
+
+      if (error) {
+        throw error;
+      }
+
       toast.success("Žinutė išsiųsta sėkmingai!");
       form.reset();
     } catch (error) {
