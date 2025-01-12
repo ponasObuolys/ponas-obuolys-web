@@ -14,8 +14,7 @@ const Kontaktai = () => {
             <div>
               <h1 className="text-3xl font-bold mb-4">Susisiekite su manimi</h1>
               <p className="text-gray-600">
-                Turite klausimų? Susisiekite su manim žemiau nurodytais kontaktais
-                arba užpildykite formą.
+                Turite klausimų? Susisiekite su manim žemiau nurodytais kontaktais.
               </p>
             </div>
             
