@@ -52,6 +52,7 @@ export function AiToolFormFields({ form, categories }: AiToolFormFieldsProps) {
             <FormLabel>Kategorija</FormLabel>
             <Select
               onValueChange={field.onChange}
+              value={field.value}
               defaultValue={field.value}
             >
               <FormControl>
@@ -80,6 +81,7 @@ export function AiToolFormFields({ form, categories }: AiToolFormFieldsProps) {
             <FormLabel>Kainodara</FormLabel>
             <Select
               onValueChange={field.onChange}
+              value={field.value}
               defaultValue={field.value}
             >
               <FormControl>
