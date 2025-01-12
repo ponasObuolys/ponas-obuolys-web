@@ -53,7 +53,7 @@ export const ContactForm = () => {
         .insert([values]);
 
       if (dbError) {
-        throw new dbError;
+        throw dbError;
       }
 
       // Call the edge function to send email
