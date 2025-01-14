@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSession } from "@supabase/auth-helpers-react";
 import { Button } from "../ui/button";
-import { Menu, X, LogIn } from "lucide-react";
+import { Menu, X, LogIn, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "../ThemeProvider";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -14,12 +16,16 @@ export const MobileNav = ({ isOpen, setIsOpen }: MobileNavProps) => {
   const location = useLocation();
   const session = useSession();
   const navigate = useNavigate();
+  const { role } = useUserRole();
+  const { theme, setTheme } = useTheme();
 
   const navLinks = [
     { name: "Naujienos", path: "/naujienos" },
+    { name: "YouTube", path: "/videos" },
     { name: "Įrankiai", path: "/irankiai" },
     { name: "Kontaktai", path: "/kontaktai" },
     { name: "Apie", path: "/apie" },
+    ...(role === "admin" ? [{ name: "Admin", path: "/admin" }] : []),
   ];
 
   return (
@@ -60,6 +66,25 @@ export const MobileNav = ({ isOpen, setIsOpen }: MobileNavProps) => {
                   {link.name}
                 </Link>
               ))}
+              
+              <div className="pt-4 border-t border-white/20">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setTheme(theme === "dark" ? "light" : "dark");
+                    setIsOpen(false);
+                  }}
+                  className="w-full justify-start text-white hover:text-gray-200"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Moon className="mr-2 h-4 w-4" />
+                  )}
+                  {theme === "dark" ? "Šviesus režimas" : "Tamsus režimas"}
+                </Button>
+              </div>
               
               {!session && (
                 <Button
