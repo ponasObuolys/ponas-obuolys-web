@@ -59,7 +59,17 @@ export function LatestTools() {
 
   const handleToolClick = (tool: Tool) => {
     if (tool.affiliate_link) {
-      window.open(tool.affiliate_link, '_blank', 'noopener noreferrer');
+      // Ensure the URL is properly formatted
+      const url = tool.affiliate_link.trim();
+      if (url) {
+        try {
+          // Validate URL format
+          new URL(url);
+          window.open(url, '_blank', 'noopener noreferrer');
+        } catch (e) {
+          console.error('Invalid affiliate URL:', url, e);
+        }
+      }
     }
   };
 
