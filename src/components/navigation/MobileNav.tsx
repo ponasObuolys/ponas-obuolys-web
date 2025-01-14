@@ -35,10 +35,18 @@ export const MobileNav = ({ isOpen, setIsOpen }: MobileNavProps) => {
       {isOpen && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setIsOpen(false)}>
           <div 
-            className="fixed inset-y-0 right-0 w-64 bg-[#9b87f5] dark:bg-gray-900 p-6 shadow-xl transform transition-transform duration-300 ease-in-out"
+            className="fixed inset-y-0 right-0 w-64 bg-[#9b87f5] dark:bg-gray-900 overflow-y-auto max-h-screen"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex flex-col space-y-4">
+            <div className="flex justify-end p-4">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-white hover:text-gray-200"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="flex flex-col space-y-4 p-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
