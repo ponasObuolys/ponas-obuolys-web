@@ -19,6 +19,11 @@ const Navigation = () => {
   const { role } = useUserRole();
   const { theme, setTheme } = useTheme();
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location]);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -27,6 +32,18 @@ const Navigation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -78,14 +95,8 @@ const Navigation = () => {
           />
 
           <MobileNav
-            navLinks={navLinks}
-            session={!!session}
-            theme={theme}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            handleLogout={handleLogout}
-            toggleTheme={toggleTheme}
-            navigate={navigate}
           />
         </div>
       </div>
