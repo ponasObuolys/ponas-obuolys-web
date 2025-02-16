@@ -57,30 +57,19 @@ function App() {
               <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
                   {/* Auth routes outside of Root layout */}
-                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/prisijungimas" element={<AuthPage />} />
                   
                   {/* All other routes within Root layout */}
                   <Route element={<Root />}>
                     <Route index element={<Index />} />
-                    <Route path="naujienos" element={<Blog />} />
-                    <Route path="naujienos/:slug" element={<BlogPost />} />
+                    <Route path="blog" element={<Blog />} />
+                    <Route path="blog/:slug" element={<BlogPost />} />
                     <Route path="irankiai" element={<Irankiai />} />
-                    <Route
-                      path="editor"
-                      element={
-                        <ProtectedRoute>
-                          <Editor />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="editor/:id"
-                      element={
-                        <ProtectedRoute>
-                          <PostEditor />
-                        </ProtectedRoute>
-                      }
-                    />
+                    <Route path="video" element={<Videos />} />
+                    <Route path="apie-mus" element={<Apie />} />
+                    <Route path="kontaktai" element={<Kontaktai />} />
+                    
+                    {/* Protected admin routes */}
                     <Route
                       path="admin/*"
                       element={
@@ -90,16 +79,29 @@ function App() {
                       }
                     />
                     <Route
-                      path="settings"
+                      path="redaktorius"
+                      element={
+                        <ProtectedRoute>
+                          <Editor />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="redaktorius/:id"
+                      element={
+                        <ProtectedRoute>
+                          <PostEditor />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="nustatymai"
                       element={
                         <ProtectedRoute>
                           <Settings />
                         </ProtectedRoute>
                       }
                     />
-                    <Route path="videos" element={<Videos />} />
-                    <Route path="kontaktai" element={<Kontaktai />} />
-                    <Route path="apie" element={<Apie />} />
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>

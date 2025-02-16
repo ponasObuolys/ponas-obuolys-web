@@ -18,6 +18,18 @@ interface Post {
   } | null;
 }
 
+interface PostResponse {
+  id: string;
+  title: string;
+  excerpt: string;
+  slug: string;
+  featured_image: string | null;
+  published_at: string;
+  author: {
+    username: string | null;
+  }[];
+}
+
 export function LatestNews() {
   const { data: posts, isLoading } = useQuery({
     queryKey: ["latest-posts"],
@@ -42,9 +54,9 @@ export function LatestNews() {
         throw error;
       }
 
-      return (data as Post[]).map(post => ({
+      return (data as PostResponse[]).map(post => ({
         ...post,
-        author: post.author?.username ? post.author : { username: "ponas Obuolys" }
+        author: post.author?.[0] || null
       }));
     },
   });
@@ -84,7 +96,7 @@ export function LatestNews() {
         
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {posts?.map((post) => (
-            <Link key={post.id} to={`/naujienos/${post.slug}`} className="block overflow-hidden rounded-lg">
+            <Link key={post.id} to={`/blog/${post.slug}`} className="block overflow-hidden rounded-lg">
               <Card className="min-h-[500px] flex flex-col transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/50 dark:bg-gray-800/50 rounded-lg transform-gpu will-change-transform">
                 {post.featured_image && (
                   <div className="aspect-video overflow-hidden">
@@ -102,7 +114,7 @@ export function LatestNews() {
                   <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-2 mb-4">
                     <span>{formatLithuanianDate(post.published_at)}</span>
                     <span>•</span>
-                    <span>{post.author.username}</span>
+                    <span>{post.author?.username}</span>
                   </div>
                   {post.excerpt && (
                     <p className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-6">
@@ -118,7 +130,7 @@ export function LatestNews() {
 
         <div className="text-center">
           <Button variant="outline" size="lg" asChild>
-            <Link to="/naujienos">
+            <Link to="/blog">
               Skaityti visas naujienas
             </Link>
           </Button>

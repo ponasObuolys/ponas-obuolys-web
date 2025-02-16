@@ -1,9 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import { generateRSSFeed } from './src/utils/rssGenerator';
+import { generateSitemap } from './src/utils/sitemapGenerator';
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -31,6 +32,19 @@ app.get('/rss.xml', (req, res) => {
   res.send(feed);
 });
 
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const baseUrl = process.env.SITE_URL || 'https://ponas-obuolys.lt';
+    const sitemap = await generateSitemap(baseUrl);
+    
+    res.header('Content-Type', 'application/xml');
+    res.send(sitemap);
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 }); 

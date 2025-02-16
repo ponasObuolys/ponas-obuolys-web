@@ -7,12 +7,14 @@ interface SocialShareProps {
   url: string;
   title: string;
   description?: string;
+  image?: string;
 }
 
 export const SocialShare: React.FC<SocialShareProps> = ({
   url,
   title,
-  description = ""
+  description = "",
+  image = ""
 }) => {
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
@@ -21,7 +23,17 @@ export const SocialShare: React.FC<SocialShareProps> = ({
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
     twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-    linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}&summary=${encodedDescription}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+  };
+
+  const handleShare = (platform: keyof typeof shareLinks) => {
+    const width = 600;
+    const height = 400;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+    const windowFeatures = `width=${width},height=${height},left=${left},top=${top},status=no,menubar=no,toolbar=no,resizable=yes`;
+    
+    window.open(shareLinks[platform], '_blank', windowFeatures);
   };
 
   const copyToClipboard = async () => {
@@ -29,7 +41,19 @@ export const SocialShare: React.FC<SocialShareProps> = ({
       await navigator.clipboard.writeText(url);
       toast.success("Nuoroda nukopijuota!");
     } catch (err) {
-      toast.error("Nepavyko nukopijuoti nuorodos");
+      console.error("Error copying to clipboard:", err);
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        toast.success("Nuoroda nukopijuota!");
+      } catch (err) {
+        toast.error("Nepavyko nukopijuoti nuorodos");
+      }
+      document.body.removeChild(textArea);
     }
   };
 
@@ -40,7 +64,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
       <Button
         variant="outline"
         size="icon"
-        onClick={() => window.open(shareLinks.facebook, '_blank')}
+        onClick={() => handleShare('facebook')}
         title="Dalintis Facebook"
       >
         <Facebook className="h-4 w-4" />
@@ -49,7 +73,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
       <Button
         variant="outline"
         size="icon"
-        onClick={() => window.open(shareLinks.twitter, '_blank')}
+        onClick={() => handleShare('twitter')}
         title="Dalintis Twitter"
       >
         <Twitter className="h-4 w-4" />
@@ -58,7 +82,7 @@ export const SocialShare: React.FC<SocialShareProps> = ({
       <Button
         variant="outline"
         size="icon"
-        onClick={() => window.open(shareLinks.linkedin, '_blank')}
+        onClick={() => handleShare('linkedin')}
         title="Dalintis LinkedIn"
       >
         <Linkedin className="h-4 w-4" />

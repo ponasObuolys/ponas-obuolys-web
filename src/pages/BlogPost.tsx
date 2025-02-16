@@ -12,44 +12,78 @@ import { toast } from "sonner";
 import { CommentSection } from "@/components/Comments/CommentSection";
 import { SocialShare } from "@/components/ui/SocialShare";
 import { useAuth } from "@/hooks/useAuth";
+import { ReadingProgress } from "@/components/ui/ReadingProgress";
+
+interface CommentResponse {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  profiles: {
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
+}
+
+interface FormattedComment {
+  id: string;
+  content: string;
+  date: Date;
+  author: string;
+  avatarUrl: string | null;
+}
 
 export default function BlogPost() {
   const { slug } = useParams();
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  console.log("BlogPost component rendered with slug:", slug);
+
   const { data: post, isLoading, error } = useQuery({
     queryKey: ["post", slug],
     queryFn: async () => {
-      console.log("Fetching blog post with slug:", slug);
+      console.log("Starting blog post fetch with slug:", slug);
       
       if (!slug) {
         console.error("No slug provided");
         return null;
       }
 
-      const { data, error } = await supabase
-        .from("posts")
-        .select(
+      try {
+        const { data, error } = await supabase
+          .from("posts")
+          .select(
+            `
+            *,
+            author:profiles(
+              username,
+              avatar_url
+            )
           `
-          *,
-          author:profiles(
-            username,
-            avatar_url
           )
-        `
-        )
-        .eq("slug", slug)
-        .eq("status", "published")
-        .maybeSingle();
+          .eq("slug", slug)
+          .eq("status", "published")
+          .single();
 
-      if (error) {
-        console.error("Error fetching blog post:", error);
-        throw error;
-      }
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // No rows returned
+            console.log("No post found with slug:", slug);
+            return null;
+          }
+          console.error("Supabase error fetching blog post:", error);
+          throw error;
+        }
 
-      // Update document head with OpenGraph meta tags
-      if (data) {
+        if (!data) {
+          console.log("No post data returned for slug:", slug);
+          return null;
+        }
+
+        console.log("Successfully fetched blog post:", data);
+
+        // Update document head with OpenGraph meta tags
         const metaTags = {
           title: data.title,
           image: data.featured_image || '/og-image.png',
@@ -59,33 +93,57 @@ export default function BlogPost() {
 
         document.title = metaTags.title;
         updateMetaTags(metaTags);
-      }
 
-      return data;
+        return data;
+      } catch (error) {
+        console.error("Error in blog post fetch:", error);
+        throw error;
+      }
     },
     enabled: !!slug,
+    retry: false, // Don't retry if post not found
   });
 
-  const { data: comments = [], isLoading: isLoadingComments } = useQuery({
+  const { data: comments = [], isLoading: isLoadingComments } = useQuery<FormattedComment[]>({
     queryKey: ["comments", slug],
     queryFn: async () => {
       if (!slug) return [];
 
-      const { data, error } = await supabase
-        .from("comments_with_user")
-        .select()
-        .eq("post_slug", slug)
-        .order("created_at", { ascending: true });
+      try {
+        const { data: rawData, error } = await supabase
+          .from("comments")
+          .select(`
+            id,
+            content,
+            created_at,
+            user_id,
+            profiles(
+              username,
+              avatar_url
+            )
+          `)
+          .eq("post_slug", slug)
+          .order("created_at", { ascending: true });
 
-      if (error) throw error;
-      
-      return data.map(comment => ({
-        id: comment.id,
-        content: comment.content,
-        date: new Date(comment.created_at),
-        author: comment.username || "Anonimas",
-        avatarUrl: comment.avatar_url
-      }));
+        if (error) {
+          console.error("Error fetching comments:", error);
+          return [];
+        }
+
+        // First cast to unknown, then to our expected type
+        const typedData = rawData as unknown as CommentResponse[];
+        
+        return typedData.map(comment => ({
+          id: comment.id,
+          content: comment.content,
+          date: new Date(comment.created_at),
+          author: comment.profiles?.username || "Anonimas",
+          avatarUrl: comment.profiles?.avatar_url
+        }));
+      } catch (error) {
+        console.error("Error in comments fetch:", error);
+        return [];
+      }
     },
     enabled: !!slug
   });
@@ -114,30 +172,57 @@ export default function BlogPost() {
   };
 
   const updateMetaTags = (meta: { title: string; image: string; description: string; url: string }) => {
-    const updateMetaTag = (property: string, content: string) => {
-      let element = document.querySelector(`meta[property="${property}"]`);
+    const updateMetaTag = (name: string, content: string, isProperty = false) => {
+      const selector = isProperty ? `meta[property="${name}"]` : `meta[name="${name}"]`;
+      let element = document.querySelector(selector);
+      
       if (!element) {
         element = document.createElement('meta');
-        element.setAttribute('property', property);
+        element.setAttribute(isProperty ? 'property' : 'name', name);
         document.head.appendChild(element);
       }
+      
       element.setAttribute('content', content);
     };
 
-    updateMetaTag('og:title', meta.title);
-    updateMetaTag('og:image', meta.image);
-    updateMetaTag('og:description', meta.description);
-    updateMetaTag('og:url', meta.url);
+    // Basic meta tags
+    updateMetaTag('description', meta.description);
+
+    // Open Graph meta tags
+    updateMetaTag('og:title', meta.title, true);
+    updateMetaTag('og:description', meta.description, true);
+    updateMetaTag('og:image', meta.image, true);
+    updateMetaTag('og:url', meta.url, true);
+    updateMetaTag('og:type', 'article', true);
+    updateMetaTag('og:site_name', 'ponas Obuolys', true);
+
+    // Twitter meta tags
+    updateMetaTag('twitter:card', 'summary_large_image');
+    updateMetaTag('twitter:site', '@ponasObuolys');
     updateMetaTag('twitter:title', meta.title);
-    updateMetaTag('twitter:image', meta.image);
     updateMetaTag('twitter:description', meta.description);
+    updateMetaTag('twitter:image', meta.image);
+
+    // Update canonical URL
+    let canonicalElement = document.querySelector('link[rel="canonical"]');
+    if (!canonicalElement) {
+      canonicalElement = document.createElement('link');
+      canonicalElement.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalElement);
+    }
+    canonicalElement.setAttribute('href', meta.url);
   };
 
   if (isLoading) return <LoadingSpinner />;
-  if (!post || error) return <NotFound />;
+  if (!post) return <NotFound />;
+  if (error) {
+    console.error("Error in BlogPost component:", error);
+    return <NotFound />;
+  }
 
   return (
     <ErrorBoundary>
+      <ReadingProgress />
       <article className="max-w-4xl mx-auto px-4 py-12">
         {post.featured_image && (
           <img
@@ -173,6 +258,7 @@ export default function BlogPost() {
             url={window.location.href}
             title={post.title}
             description={post.excerpt || post.content?.substring(0, 160) || ""}
+            image={post.featured_image || '/og-image.png'}
           />
         </div>
 

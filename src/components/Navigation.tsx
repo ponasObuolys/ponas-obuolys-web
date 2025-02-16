@@ -64,11 +64,11 @@ const Navigation = () => {
 
   const navLinks = [
     { name: "Pradžia", path: "/" },
-    { name: "YouTube", path: "/videos" },
-    { name: "Naujienos", path: "/naujienos" },
+    { name: "YouTube", path: "/video" },
+    { name: "Naujienos", path: "/blog" },
     { name: "Įrankiai", path: "/irankiai" },
     { name: "Kontaktai", path: "/kontaktai" },
-    { name: "Apie", path: "/apie" },
+    { name: "Apie", path: "/apie-mus" },
     ...(role === "admin" ? [{ name: "Admin", path: "/admin" }] : []),
   ];
 
@@ -98,6 +98,8 @@ const Navigation = () => {
           <MobileNav
             isOpen={isOpen}
             setIsOpen={setIsOpen}
+            navLinks={navLinks}
+            handleLogout={handleLogout}
           />
         </div>
       </div>
