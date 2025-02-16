@@ -30,7 +30,7 @@ export const DesktopNav = ({
           key={link.path}
           to={link.path}
           className={cn(
-            "text-white hover:text-white/80 transition-colors px-3 py-2 rounded-md text-sm font-medium",
+            "dark:text-white text-gray-700 hover:text-gray-900 dark:hover:text-white/80 transition-colors px-3 py-2 rounded-md text-sm font-medium",
             location.pathname === link.path && "text-primary font-semibold"
           )}
         >
@@ -42,7 +42,7 @@ export const DesktopNav = ({
         variant="ghost"
         size="icon"
         onClick={toggleTheme}
-        className="text-white hover:text-white/80"
+        className="dark:text-white text-gray-700 hover:text-gray-900 dark:hover:text-white/80"
       >
         {theme === "dark" ? (
           <Sun className="h-5 w-5" />
@@ -55,7 +55,7 @@ export const DesktopNav = ({
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className="text-white hover:text-white/80"
+          className="dark:text-white text-gray-700 hover:text-gray-900 dark:hover:text-white/80"
         >
           <LogOut className="h-5 w-5 mr-2" />
           Atsijungti
@@ -63,8 +63,8 @@ export const DesktopNav = ({
       ) : (
         <Button
           variant="ghost"
-          onClick={() => navigate("/auth")}
-          className="text-white hover:text-white/80"
+          onClick={() => navigate("/prisijungimas")}
+          className="dark:text-white text-gray-700 hover:text-gray-900 dark:hover:text-white/80"
         >
           <LogIn className="h-5 w-5 mr-2" />
           Prisijungti

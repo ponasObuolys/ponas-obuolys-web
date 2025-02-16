@@ -18,7 +18,7 @@ const Admin = () => {
   useEffect(() => {
     console.log("Admin: Session and role check", { session, role, loading });
     if (!session) {
-      navigate("/auth");
+      navigate("/prisijungimas");
     } else if (!loading && role !== "admin") {
       navigate("/");
     }

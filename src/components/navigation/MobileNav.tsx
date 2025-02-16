@@ -43,7 +43,7 @@ export const MobileNav = ({ isOpen, setIsOpen, navLinks, handleLogout }: MobileN
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden p-2 hover:bg-accent rounded-md"
+        className="lg:hidden p-2 hover:bg-accent rounded-md dark:text-white text-gray-700 hover:text-gray-900 dark:hover:text-white/80"
         aria-label={isOpen ? "Uždaryti meniu" : "Atidaryti meniu"}
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -75,7 +75,7 @@ export const MobileNav = ({ isOpen, setIsOpen, navLinks, handleLogout }: MobileN
                 <div className="flex justify-end">
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-2 hover:bg-accent rounded-md"
+                    className="p-2 hover:bg-accent rounded-md dark:text-white text-gray-700 hover:text-gray-900 dark:hover:text-white/80"
                     aria-label="Uždaryti meniu"
                   >
                     <X className="w-6 h-6" />
@@ -90,7 +90,7 @@ export const MobileNav = ({ isOpen, setIsOpen, navLinks, handleLogout }: MobileN
                         navigate(link.path);
                         setIsOpen(false);
                       }}
-                      className="px-4 py-2 text-left hover:bg-accent rounded-md transition-colors"
+                      className="px-4 py-2 text-left hover:bg-accent rounded-md transition-colors dark:text-white text-gray-700 hover:text-gray-900 dark:hover:text-white/80"
                       whileTap={{ scale: 0.95 }}
                     >
                       {link.name}
@@ -119,7 +119,7 @@ export const MobileNav = ({ isOpen, setIsOpen, navLinks, handleLogout }: MobileN
                   ) : (
                     <button
                       onClick={() => {
-                        navigate("/login");
+                        navigate("/prisijungimas");
                         setIsOpen(false);
                       }}
                       className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md transition-colors"

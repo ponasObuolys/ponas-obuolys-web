@@ -8,6 +8,9 @@ import { useState, useEffect } from "react";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
+import { Newsletter } from "@/components/Newsletter";
+import { CategoryFilter } from "@/components/CategoryFilter";
+import { BookmarkButton } from "@/components/BookmarkButton";
 
 const POSTS_PER_PAGE = 12;
 
@@ -40,8 +43,16 @@ interface PostResponse {
   }[];
 }
 
+interface SubQuery {
+  from: (table: string) => SubQuery;
+  select: (columns: string) => SubQuery;
+  eq: (column: string, value: string) => SubQuery;
+  inner_join: (table: string, condition: Record<string, string>) => SubQuery;
+}
+
 const Blog = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { ref: loadMoreRef, inView } = useInView();
   
   const {
@@ -51,13 +62,13 @@ const Blog = () => {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery<PageData>({
-    queryKey: ["published-posts", searchQuery],
+    queryKey: ["published-posts", searchQuery, selectedCategory],
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
-      console.log("Fetching published blog posts...");
       const startIndex = (pageParam as number) * POSTS_PER_PAGE;
       const endIndex = startIndex + POSTS_PER_PAGE - 1;
 
+      // First, let's try a simple query to get all published posts
       let query = supabase
         .from("posts")
         .select(`
@@ -70,21 +81,43 @@ const Blog = () => {
           author:profiles(username)
         `)
         .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .range(startIndex, endIndex);
+        .order("published_at", { ascending: false });
 
       if (searchQuery) {
         query = query.or(`title.ilike.%${searchQuery}%,excerpt.ilike.%${searchQuery}%`);
       }
 
-      const { data, error } = await query;
+      // Only add category filtering if a category is selected
+      if (selectedCategory) {
+        const { data: postIds } = await supabase
+          .from("post_categories")
+          .select(`
+            post_id,
+            categories!inner (
+              slug
+            )
+          `)
+          .eq("categories.slug", selectedCategory);
+
+        if (postIds?.length) {
+          query = query.in("id", postIds.map(p => p.post_id));
+        } else {
+          // If no posts found in category, return empty result
+          return {
+            posts: [],
+            nextPage: null,
+          };
+        }
+      }
+
+      const { data: postsData, error } = await query.range(startIndex, endIndex);
 
       if (error) {
         console.error("Error fetching posts:", error);
         throw error;
       }
 
-      const posts = (data as PostResponse[]).map(post => ({
+      const posts = (postsData as PostResponse[]).map(post => ({
         ...post,
         author: post.author?.[0] || null
       }));
@@ -114,10 +147,17 @@ const Blog = () => {
       <div className="flex flex-col space-y-8">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">Naujienos</h1>
         
-        <div className="w-full max-w-2xl">
-          <SearchBar
-            onSearch={setSearchQuery}
-            placeholder="Ieškoti straipsnių..."
+        <div className="flex flex-col space-y-4">
+          <div className="w-full max-w-2xl">
+            <SearchBar
+              onSearch={setSearchQuery}
+              placeholder="Ieškoti straipsnių..."
+            />
+          </div>
+          
+          <CategoryFilter
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
           />
         </div>
 
@@ -139,8 +179,8 @@ const Blog = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {allPosts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`}>
-                  <Card className="h-full transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                <Card key={post.id} className="h-full group transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                  <Link to={`/blog/${post.slug}`} className="block">
                     {post.featured_image && (
                       <div className="aspect-video">
                         <img
@@ -151,11 +191,14 @@ const Blog = () => {
                       </div>
                     )}
                     <CardHeader>
-                      <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                        <div onClick={(e) => e.preventDefault()}>
+                          <BookmarkButton postId={post.id} />
+                        </div>
+                      </div>
                       <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-2">
-                        <span>
-                          {formatLithuanianDate(post.published_at)}
-                        </span>
+                        <span>{formatLithuanianDate(post.published_at)}</span>
                         {post.author?.username && (
                           <>
                             <span>•</span>
@@ -166,12 +209,19 @@ const Blog = () => {
                     </CardHeader>
                     {post.excerpt && (
                       <CardContent>
-                        <p className="text-gray-600 dark:text-gray-300 line-clamp-3">{post.excerpt}</p>
+                        <p className="text-gray-600 dark:text-gray-300 line-clamp-3">
+                          {post.excerpt}
+                        </p>
                       </CardContent>
                     )}
-                  </Card>
-                </Link>
+                  </Link>
+                </Card>
               ))}
+            </div>
+
+            {/* Newsletter Section */}
+            <div className="my-12">
+              <Newsletter />
             </div>
 
             {/* Infinite scroll trigger */}

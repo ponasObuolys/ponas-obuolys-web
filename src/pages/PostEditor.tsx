@@ -28,7 +28,7 @@ const PostEditor = () => {
 
   useEffect(() => {
     if (!session) {
-      navigate("/auth");
+      navigate("/prisijungimas");
     } else if (!roleLoading && role !== "admin") {
       navigate("/");
     }

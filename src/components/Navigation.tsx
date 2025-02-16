@@ -83,7 +83,7 @@ const Navigation = () => {
         <div className="flex justify-between items-center space-x-8">
           <div className="flex items-center space-x-4">
             <Logo />
-            <span className="text-white font-medium">ponas Obuolys</span>
+            <span className="dark:text-white text-gray-700 font-medium">ponas Obuolys</span>
           </div>
           
           <DesktopNav

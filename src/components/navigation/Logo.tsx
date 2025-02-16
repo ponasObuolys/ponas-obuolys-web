@@ -4,7 +4,7 @@ export const Logo = () => {
   return (
     <Link
       to="/"
-      className="flex items-center text-2xl font-bold text-white hover:opacity-80 transition-opacity"
+      className="flex items-center text-2xl font-bold dark:text-white text-gray-700 hover:opacity-80 transition-opacity"
     >
       <img
         src="/lovable-uploads/0aa80ff9-7a2d-4961-ab31-ff1334112b79.png"

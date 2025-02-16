@@ -13,6 +13,10 @@ import { CommentSection } from "@/components/Comments/CommentSection";
 import { SocialShare } from "@/components/ui/SocialShare";
 import { useAuth } from "@/hooks/useAuth";
 import { ReadingProgress } from "@/components/ui/ReadingProgress";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { BookmarkButton } from "@/components/BookmarkButton";
+import { RelatedPosts } from "@/components/RelatedPosts";
+import { Newsletter } from "@/components/Newsletter";
 
 interface CommentResponse {
   id: string;
@@ -33,15 +37,32 @@ interface FormattedComment {
   avatarUrl: string | null;
 }
 
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  excerpt: string;
+  featured_image: string | null;
+  published_at: string;
+  created_at: string;
+  author: Array<{
+    username: string | null;
+    avatar_url: string | null;
+  }>;
+  post_categories: Array<{
+    category_id: string;
+  }>;
+}
+
 export default function BlogPost() {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
   console.log("BlogPost component rendered with slug:", slug);
 
-  const { data: post, isLoading, error } = useQuery({
-    queryKey: ["post", slug],
+  const { data: post, isLoading, error } = useQuery<Post>({
+    queryKey: ["blog-post", slug],
     queryFn: async () => {
       console.log("Starting blog post fetch with slug:", slug);
       
@@ -53,15 +74,17 @@ export default function BlogPost() {
       try {
         const { data, error } = await supabase
           .from("posts")
-          .select(
-            `
-            *,
-            author:profiles(
-              username,
-              avatar_url
-            )
-          `
-          )
+          .select(`
+            id,
+            title,
+            content,
+            excerpt,
+            featured_image,
+            published_at,
+            created_at,
+            author:profiles(username, avatar_url),
+            post_categories(category_id)
+          `)
           .eq("slug", slug)
           .eq("status", "published")
           .single();
@@ -111,17 +134,8 @@ export default function BlogPost() {
 
       try {
         const { data: rawData, error } = await supabase
-          .from("comments")
-          .select(`
-            id,
-            content,
-            created_at,
-            user_id,
-            profiles(
-              username,
-              avatar_url
-            )
-          `)
+          .from("comments_with_user")
+          .select("*")
           .eq("post_slug", slug)
           .order("created_at", { ascending: true });
 
@@ -130,15 +144,12 @@ export default function BlogPost() {
           return [];
         }
 
-        // First cast to unknown, then to our expected type
-        const typedData = rawData as unknown as CommentResponse[];
-        
-        return typedData.map(comment => ({
+        return rawData.map(comment => ({
           id: comment.id,
           content: comment.content,
           date: new Date(comment.created_at),
-          author: comment.profiles?.username || "Anonimas",
-          avatarUrl: comment.profiles?.avatar_url
+          author: comment.username || "Anonimas",
+          avatarUrl: comment.avatar_url
         }));
       } catch (error) {
         console.error("Error in comments fetch:", error);
@@ -220,12 +231,14 @@ export default function BlogPost() {
     return <NotFound />;
   }
 
+  const categoryIds = post.post_categories.map(pc => pc.category_id);
+
   return (
     <ErrorBoundary>
       <ReadingProgress />
       <article className="max-w-4xl mx-auto px-4 py-12">
         {post.featured_image && (
-          <img
+          <OptimizedImage
             src={post.featured_image}
             alt={post.title}
             className="w-full aspect-video object-cover rounded-lg mb-8"
@@ -235,15 +248,15 @@ export default function BlogPost() {
         <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
 
         <div className="flex items-center gap-2 mb-8 text-muted-foreground">
-          {post.author?.avatar_url && (
-            <img
-              src={post.author.avatar_url}
-              alt={post.author.username || "Autorius"}
+          {post.author?.[0]?.avatar_url && (
+            <OptimizedImage
+              src={post.author[0].avatar_url}
+              alt={post.author[0].username || "Autorius"}
               className="w-8 h-8 rounded-full"
             />
           )}
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-            <span>{post.author?.username || "ponas Obuolys"}</span>
+            <span>{post.author?.[0]?.username || "ponas Obuolys"}</span>
             <span className="hidden sm:inline">•</span>
             <span>{formatLithuanianDate(post.published_at || post.created_at)}</span>
           </div>
@@ -273,6 +286,14 @@ export default function BlogPost() {
           />
         </div>
       </article>
+
+      <div className="mt-16">
+        <Newsletter />
+      </div>
+
+      <div className="mt-16">
+        <RelatedPosts currentPostId={post.id} categoryIds={categoryIds} />
+      </div>
     </ErrorBoundary>
   );
 }
