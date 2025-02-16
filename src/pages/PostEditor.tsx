@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useUserRole } from "@/hooks/useUserRole";
-import Navigation from "@/components/Navigation";
+import { Navigation } from "@/components/Navigation";
 import PostForm from "@/components/editor/PostForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";

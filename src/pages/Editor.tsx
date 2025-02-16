@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSession } from "@supabase/auth-helpers-react";
-import Navigation from "@/components/Navigation";
+import { Navigation } from "@/components/Navigation";
 import PostForm from "@/components/editor/PostForm";
 import { PostFormData } from "@/types/post";
 import { supabase } from "@/integrations/supabase/client";

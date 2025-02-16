@@ -1,5 +1,5 @@
 import { useSession } from "@supabase/auth-helpers-react";
-import Navigation from "./Navigation";
+import { Navigation } from "./Navigation";
 import Footer from "./footer/Footer";
 import { Helmet } from "react-helmet";
 
