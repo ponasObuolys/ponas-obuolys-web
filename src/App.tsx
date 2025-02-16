@@ -1,25 +1,28 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Root } from "@/components/Root";
-import Index from "@/pages/Index";
-import Blog from "@/pages/Blog";
-import BlogPost from "@/pages/BlogPost";
-import Editor from "@/pages/Editor";
-import PostEditor from "@/pages/PostEditor";
-import Admin from "@/pages/Admin";
-import Settings from "@/pages/Settings";
-import Videos from "@/pages/Videos";
-import Kontaktai from "@/pages/Kontaktai";
-import Apie from "@/pages/Apie";
-import Irankiai from "@/pages/Irankiai";
 import { NotFound } from "@/components/NotFound";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import AuthPage from "@/pages/auth/AuthPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, Suspense, lazy } from "react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+
+// Lazy load pages
+const Index = lazy(() => import("@/pages/Index"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogPost = lazy(() => import("@/pages/BlogPost"));
+const Editor = lazy(() => import("@/pages/Editor"));
+const PostEditor = lazy(() => import("@/pages/PostEditor"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const Videos = lazy(() => import("@/pages/Videos"));
+const Kontaktai = lazy(() => import("@/pages/Kontaktai"));
+const Apie = lazy(() => import("@/pages/Apie"));
+const Irankiai = lazy(() => import("@/pages/Irankiai"));
+const AuthPage = lazy(() => import("@/pages/auth/AuthPage"));
 
 const queryClient = new QueryClient();
 
@@ -51,54 +54,56 @@ function App() {
         <ThemeProvider>
           <ErrorBoundary>
             <BrowserRouter>
-              <Routes>
-                {/* Auth routes outside of Root layout */}
-                <Route path="/auth" element={<AuthPage />} />
-                
-                {/* All other routes within Root layout */}
-                <Route element={<Root />}>
-                  <Route index element={<Index />} />
-                  <Route path="naujienos" element={<Blog />} />
-                  <Route path="naujienos/:slug" element={<BlogPost />} />
-                  <Route path="irankiai" element={<Irankiai />} />
-                  <Route
-                    path="editor"
-                    element={
-                      <ProtectedRoute>
-                        <Editor />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="editor/:id"
-                    element={
-                      <ProtectedRoute>
-                        <PostEditor />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="admin/*"
-                    element={
-                      <ProtectedRoute>
-                        <Admin />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="settings"
-                    element={
-                      <ProtectedRoute>
-                        <Settings />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="videos" element={<Videos />} />
-                  <Route path="kontaktai" element={<Kontaktai />} />
-                  <Route path="apie" element={<Apie />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  {/* Auth routes outside of Root layout */}
+                  <Route path="/auth" element={<AuthPage />} />
+                  
+                  {/* All other routes within Root layout */}
+                  <Route element={<Root />}>
+                    <Route index element={<Index />} />
+                    <Route path="naujienos" element={<Blog />} />
+                    <Route path="naujienos/:slug" element={<BlogPost />} />
+                    <Route path="irankiai" element={<Irankiai />} />
+                    <Route
+                      path="editor"
+                      element={
+                        <ProtectedRoute>
+                          <Editor />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="editor/:id"
+                      element={
+                        <ProtectedRoute>
+                          <PostEditor />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="admin/*"
+                      element={
+                        <ProtectedRoute>
+                          <Admin />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="settings"
+                      element={
+                        <ProtectedRoute>
+                          <Settings />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="videos" element={<Videos />} />
+                    <Route path="kontaktai" element={<Kontaktai />} />
+                    <Route path="apie" element={<Apie />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </BrowserRouter>
           </ErrorBoundary>
         </ThemeProvider>
