@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { lt } from "date-fns/locale";
@@ -9,9 +9,14 @@ import { NotFound } from "@/components/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { CommentSection } from "@/components/Comments/CommentSection";
+import { SocialShare } from "@/components/ui/SocialShare";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function BlogPost() {
   const { slug } = useParams();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: post, isLoading, error } = useQuery({
     queryKey: ["post", slug],
@@ -61,34 +66,51 @@ export default function BlogPost() {
     enabled: !!slug,
   });
 
+  const { data: comments = [], isLoading: isLoadingComments } = useQuery({
+    queryKey: ["comments", slug],
+    queryFn: async () => {
+      if (!slug) return [];
+
+      const { data, error } = await supabase
+        .from("comments_with_user")
+        .select()
+        .eq("post_slug", slug)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      
+      return data.map(comment => ({
+        id: comment.id,
+        content: comment.content,
+        date: new Date(comment.created_at),
+        author: comment.username || "Anonimas",
+        avatarUrl: comment.avatar_url
+      }));
+    },
+    enabled: !!slug
+  });
+
+  const addCommentMutation = useMutation({
+    mutationFn: async (content: string) => {
+      if (!slug || !user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from("comments")
+        .insert({
+          content,
+          post_slug: slug,
+          user_id: user.id
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", slug] });
+    }
+  });
+
   const formatLithuanianDate = (date: string) => {
     return format(new Date(date), "yyyy 'm.' MMMM d 'd.'", { locale: lt });
-  };
-
-  const handleShare = (platform: 'facebook' | 'twitter' | 'linkedin') => {
-    if (!post) return;
-
-    const url = window.location.href;
-    const title = post.title;
-    const description = post.excerpt || post.content?.substring(0, 160) || '';
-
-    const shareUrls = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`,
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
-    };
-
-    window.open(shareUrls[platform], '_blank', 'width=600,height=400');
-  };
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success("Nuoroda nukopijuota!");
-    } catch (err) {
-      console.error("Failed to copy link:", err);
-      toast.error("Nepavyko nukopijuoti nuorodos");
-    }
   };
 
   const updateMetaTags = (meta: { title: string; image: string; description: string; url: string }) => {
@@ -147,41 +169,22 @@ export default function BlogPost() {
         </div>
 
         <div className="border-t pt-8">
-          <h2 className="text-lg font-semibold mb-4">Dalintis straipsniu:</h2>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleShare('facebook')}
-              title="Dalintis Facebook"
-            >
-              <Facebook className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleShare('twitter')}
-              title="Dalintis Twitter"
-            >
-              <Twitter className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleShare('linkedin')}
-              title="Dalintis LinkedIn"
-            >
-              <Linkedin className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={copyLink}
-              title="Kopijuoti nuorodą"
-            >
-              <LinkIcon className="h-4 w-4" />
-            </Button>
-          </div>
+          <SocialShare
+            url={window.location.href}
+            title={post.title}
+            description={post.excerpt || post.content?.substring(0, 160) || ""}
+          />
+        </div>
+
+        <div className="border-t mt-8 pt-8">
+          <CommentSection
+            comments={comments}
+            onAddComment={(content) => addCommentMutation.mutate(content)}
+            currentUser={user ? {
+              name: user.user_metadata?.username || "Vartotojas",
+              avatarUrl: user.user_metadata?.avatar_url
+            } : undefined}
+          />
         </div>
       </article>
     </ErrorBoundary>
