@@ -33,17 +33,17 @@ export const Hero = () => {
   const { data: youtubeStats, isLoading, error } = useYoutubeStats();
 
   return (
-    <div className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900">
+    <div className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Animated background shapes */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -inset-[10px] opacity-50">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-purple-300 dark:bg-purple-700 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-pink-300 dark:bg-pink-700 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-yellow-300 dark:bg-yellow-700 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-purple-400 dark:bg-purple-700 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+          <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-pink-400 dark:bg-pink-700 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-yellow-400 dark:bg-yellow-700 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center space-y-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center space-y-8">
         <span className="inline-block animate-fadeIn opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards] px-3 py-1 mb-2 text-sm font-medium bg-primary/10 text-primary rounded-full">
           Dirbtinis Intelektas Paprastai
         </span>

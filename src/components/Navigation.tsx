@@ -75,15 +75,16 @@ const Navigation = () => {
   return (
     <nav
       className={cn(
-        "fixed top-0 w-full z-50 transition-all duration-300",
-        scrolled
-          ? "bg-white/80 backdrop-blur-md shadow-sm dark:bg-gray-900/80"
-          : "bg-transparent"
+        "fixed top-0 w-full z-50 transition-all duration-300 px-6 py-8",
+        scrolled && "backdrop-blur-md shadow-sm"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <Logo />
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center space-x-8">
+          <div className="flex items-center space-x-4">
+            <Logo />
+            <span className="text-white font-medium">ponas Obuolys</span>
+          </div>
           
           <DesktopNav
             navLinks={navLinks}

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useSession } from "@supabase/auth-helpers-react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Button } from "../ui/button";
 import { Menu, X, LogIn, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "../ThemeProvider";
 import { useUserRole } from "@/hooks/useUserRole";
+import { toast } from "../ui/use-toast";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -18,10 +19,29 @@ export const MobileNav = ({ isOpen, setIsOpen }: MobileNavProps) => {
   const navigate = useNavigate();
   const { role } = useUserRole();
   const { theme, setTheme } = useTheme();
+  const supabase = useSupabaseClient();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Klaida",
+        description: "Nepavyko atsijungti. Bandykite dar kartą.",
+      });
+    } else {
+      navigate("/");
+    }
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   const navLinks = [
-    { name: "Naujienos", path: "/naujienos" },
+    { name: "Pradžia", path: "/" },
     { name: "YouTube", path: "/videos" },
+    { name: "Naujienos", path: "/naujienos" },
     { name: "Įrankiai", path: "/irankiai" },
     { name: "Kontaktai", path: "/kontaktai" },
     { name: "Apie", path: "/apie" },
@@ -30,79 +50,71 @@ export const MobileNav = ({ isOpen, setIsOpen }: MobileNavProps) => {
 
   return (
     <div className="md:hidden">
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative z-50 text-white hover:text-white/80"
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-gray-800 dark:text-gray-100"
-        aria-label="Toggle menu"
       >
         {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-      </button>
+      </Button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setIsOpen(false)}>
-          <div 
-            className="fixed inset-y-0 right-0 w-64 bg-[#9b87f5] dark:bg-gray-900 overflow-y-auto max-h-screen"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-end p-4">
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-white hover:text-gray-200"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-            <div className="flex flex-col space-y-4 p-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={cn(
-                    "text-white hover:text-gray-200 py-2 text-lg font-medium transition-colors",
-                    location.pathname === link.path && "text-white font-semibold"
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              
-              <div className="pt-4 border-t border-white/20">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setTheme(theme === "dark" ? "light" : "dark");
-                    setIsOpen(false);
-                  }}
-                  className="w-full justify-start text-white hover:text-gray-200"
-                >
-                  {theme === "dark" ? (
-                    <Sun className="mr-2 h-4 w-4" />
-                  ) : (
-                    <Moon className="mr-2 h-4 w-4" />
-                  )}
-                  {theme === "dark" ? "Šviesus režimas" : "Tamsus režimas"}
-                </Button>
-              </div>
-              
-              {!session && (
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-white hover:text-gray-200"
-                  onClick={() => {
-                    navigate("/auth");
-                    setIsOpen(false);
-                  }}
-                >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Prisijungti
-                </Button>
+      {/* Mobile menu overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 bg-purple-900/95 backdrop-blur-sm transition-all duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+      >
+        <div className="flex flex-col items-center justify-center min-h-screen space-y-8 p-4">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={cn(
+                "text-lg font-medium text-white hover:text-white/80 transition-colors",
+                location.pathname === link.path && "text-primary"
               )}
-            </div>
+              onClick={() => setIsOpen(false)}
+            >
+              {link.name}
+            </Link>
+          ))}
+          
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="text-white hover:text-white/80"
+            >
+              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Button>
+            
+            {session ? (
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className="text-white hover:text-white/80"
+              >
+                Atsijungti
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  navigate("/auth");
+                  setIsOpen(false);
+                }}
+                className="text-white hover:text-white/80"
+              >
+                <LogIn className="h-5 w-5 mr-2" />
+                Prisijungti
+              </Button>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

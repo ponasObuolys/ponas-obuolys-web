@@ -20,7 +20,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-md">
+    <form data-testid="search-form" onSubmit={handleSubmit} className="flex gap-2 w-full max-w-md">
       <Input
         type="text"
         placeholder={placeholder}
