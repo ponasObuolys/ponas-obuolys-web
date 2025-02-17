@@ -38,7 +38,7 @@ export default function Irankiai() {
   return (
     <div className="container mx-auto px-4 py-12 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Dirbtinio intelekto įrankiai</h1>
+        <h1 className="text-3xl font-bold mt-8">Dirbtinio intelekto įrankiai</h1>
         {session && role === "admin" && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>

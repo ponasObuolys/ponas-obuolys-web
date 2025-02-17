@@ -32,6 +32,8 @@ export const useAiTools = (filters: AiToolsFilters) => {
         query = query.eq("category_id", filters.categoryId);
       }
 
+      query = query.order("created_at", { ascending: false });
+
       const { data, error } = await query;
 
       if (error) {
